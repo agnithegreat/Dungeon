@@ -1,30 +1,31 @@
-package dungeon.map
-{
-	import dungeon.map.construct.Floor;
-	import dungeon.map.construct.Wall;
+package dungeon.map {
 	import dungeon.map.interaction.FrontTorch;
-	import dungeon.map.interaction.Ladder;
-	import dungeon.map.interaction.Torch;
 	import dungeon.map.interaction.WallTorch;
+	import dungeon.map.interaction.Torch;
 	import dungeon.personage.Monster;
 	import dungeon.personage.Player;
-	
+	import dungeon.map.construct.Wall;
+	import dungeon.map.construct.Floor;
+	import dungeon.map.interaction.Ladder;
 	import starling.display.Sprite;
-	
-	public class DefaultMap extends Sprite
-	{
-		public static var mapWidth: int = 640;
-		public static var mapHeight: int = 480;
-		public static var levelHeight: int = 100;
+
+	/**
+	 * @author desktop
+	 */
+	public class DefaultStarlingMap extends Sprite {
 		
-		private var _personage: Player;
+		public static var mapWidth: int = 768;
+		public static var mapHeight: int = 512;
+		public static var levelHeight: int = 128;
+		
+		private var _personage : Player;
 		public function get personage():Player {
 			return _personage;
 		}
 		
-		private var _monsters: Vector.<Monster>;
+		private var _monsters : Vector.<Monster>;
 		
-		public function DefaultMap()
+		public function DefaultStarlingMap()
 		{
 			build();
 		}
@@ -54,7 +55,7 @@ package dungeon.map
 		
 		private function createLadders():void {
 			var left: Boolean = false;
-			for (var i: int = mapHeight; i >= 0 ; i -= levelHeight) {
+			for (var i: int = mapHeight; i > 0 ; i -= levelHeight) {
 				var ladder: Ladder = new Ladder(levelHeight+20);
 				ladder.x = left ? 160 : mapWidth-160;
 				ladder.y = i-(levelHeight+40);
@@ -90,7 +91,7 @@ package dungeon.map
 		}
 		
 		private function createFloors():void {
-			for (var i: int = mapHeight; i >= 0 ; i -= levelHeight) {
+			for (var i: int = mapHeight; i > 0 ; i -= levelHeight) {
 				var floor: Floor = new Floor(mapWidth);
 				floor.y = i-20;
 				addChild(floor);
@@ -98,7 +99,7 @@ package dungeon.map
 		}
 		
 		private function createWalls():void {
-			for (var i: int = mapHeight; i >= 0 ; i -= levelHeight) {
+			for (var i: int = mapHeight; i > 0 ; i -= levelHeight) {
 				var wall: Wall = new Wall(levelHeight-20,true);
 				wall.y = i-levelHeight;
 				addChild(wall);
@@ -113,8 +114,8 @@ package dungeon.map
 		private function createPersonage():void {
 			_personage = new Player();
 			_personage.x = mapWidth*0.5;
-			_personage.y = mapHeight*0.5;
-			addChild(_personage);
+			_personage.y = mapHeight*0.6;
+			addChild(_personage); 
 		}
 		
 		private function createMonsters():void {

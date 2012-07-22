@@ -1,21 +1,25 @@
 package dungeon.events
 {
-	import flash.events.Event;
+	import starling.events.Event;
 	
 	public class GameObjectEvent extends Event
 	{
+		public static const TICK: String = "tick_GameObjectEvent";
+		
 		public static const OBJECT_MOVE: String = "object_move_GameObjectEvent";
+		public static const OBJECT_STUCK_X: String = "object_stuck_x_GameObjectEvent";
+		public static const OBJECT_STUCK_Y: String = "object_stuck_y_GameObjectEvent";
 		public static const OBJECT_DESTROY: String = "object_destroy_GameObjectEvent";
 		
-		public var data: Object
-		public function GameObjectEvent($type:String, $data: Object = null, $bubbles:Boolean=false, $cancelable:Boolean=false)
+		public var data: Object;
+		public function GameObjectEvent($type:String, $data: Object = null, $bubbles:Boolean=false)
 		{
 			data = $data;
-			super($type, $bubbles, $cancelable);
+			super($type, $bubbles);
 		}
 		
-		override public function clone():Event {
-			return new GameObjectEvent(type, data, bubbles, cancelable);
+		public function clone():Event {
+			return new GameObjectEvent(type, data, bubbles);
 		}
 	}
 }

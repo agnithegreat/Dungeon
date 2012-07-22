@@ -1,8 +1,10 @@
 package dungeon.map
 {
+	import dungeon.system.GameSystem;
+	import starling.display.DisplayObject;
 	import dungeon.events.GameObjectEvent;
 	
-	import flash.display.Sprite;
+	import starling.display.Sprite;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	
@@ -36,10 +38,23 @@ package dungeon.map
 		{
 			_container = new Sprite();
 			addChild(_container);
+			
+			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
+		}
+
+		protected function handleTick(e : GameObjectEvent) : void {
 		}
 		
 		public function dispatchMove():void {
 			dispatchEvent(new GameObjectEvent(GameObjectEvent.OBJECT_MOVE));
+		}
+		
+		public function hitTestObject($obj: DisplayObject):Boolean {
+			return bounds.intersects($obj.bounds);
+		}
+		
+		public function destroy():void {
+			
 		}
 	}
 }

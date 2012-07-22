@@ -1,15 +1,20 @@
 package dungeon.system
 {
-	import dungeon.map.DefaultMap;
-	import dungeon.map.GameObject;
-	import dungeon.map.interaction.InteractiveObject;
-	import dungeon.map.construct.Platform;
-	import dungeon.personage.Personage;
-	import dungeon.utils.ShadowContainer;
+	import dungeon.events.GameObjectEvent;
+	import starling.events.Event;
+	import starling.events.EventDispatcher;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	import dungeon.utils.ShadowKicker;
+	import dungeon.personage.Personage;
+	import dungeon.map.interaction.InteractiveObject;
+	import starling.display.DisplayObject;
+	import dungeon.map.construct.Platform;
+	import dungeon.map.DefaultStarlingMap;
+	import dungeon.map.GameObject;
+	import dungeon.utils.ShadowContainer;
 	
-	import flash.display.DisplayObject;
-	import flash.display.Sprite;
+	import starling.display.Sprite;
 
 	public class GameSystem
 	{
@@ -94,20 +99,39 @@ package dungeon.system
 		}
 		
 		private static var _view: Sprite;
-		private static var _map: DefaultMap;
+		private static var _map: DefaultStarlingMap;
 		private static var _shadow: ShadowContainer;
 		public static function addShadowKicker($object: GameObject, $radius: int):void {
 			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
 		}
 		
+		private static var _timer: Timer;
+		private static var _eventDispatcher: EventDispatcher;
+		public static function addEventListener($event: String, $callback: Function):void {
+			_eventDispatcher.addEventListener($event, $callback);
+		}
+		private static function dispatchEvent($event: Event):void {
+			_eventDispatcher.dispatchEvent($event);
+		}
+		
 		public static function init($view: Sprite):void {
+			_eventDispatcher = new EventDispatcher();
+			
 			_view = $view;
 			
 			_shadow = ShadowContainer.applyShadow(_view);
 			
-			_map = new DefaultMap();
+			_map = new DefaultStarlingMap();
 			_view.addChildAt(_map, 0);
 			_map.init();
+			
+			_timer = new Timer(30);
+			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
+			_timer.start();
+		}
+		
+		private static function handleTimer(e: TimerEvent):void {
+			dispatchEvent(new GameObjectEvent(GameObjectEvent.TICK));
 		}
 	}
 }

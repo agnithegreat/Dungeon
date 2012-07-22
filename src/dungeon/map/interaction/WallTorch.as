@@ -1,10 +1,9 @@
 package dungeon.map.interaction
 {
+	import starling.display.Image;
+	import starling.textures.Texture;
+	import flash.display.BitmapData;
 	import assets.WallTorchUI;
-	
-	import dungeon.system.GameSystem;
-	
-	import flash.display.Sprite;
 	
 	public class WallTorch extends Torch
 	{
@@ -12,9 +11,18 @@ package dungeon.map.interaction
 		{
 			super();
 			
-			_torch = new WallTorchUI();
-			_container.addChild(_torch);
-			_container.scaleX = $isLeftSided ? 1 : -1
+			var bg: WallTorchUI = new WallTorchUI();
+			var bmd: BitmapData = new BitmapData(bg.width, bg.height, true, 0x00000000);
+			bmd.draw(bg);
+			var texture: Texture = Texture.fromBitmapData(bmd);
+			
+			var image: Image = new Image(texture);
+			_container.scaleX = $isLeftSided ? 1 : -1;
+			_container.addChild(image);
+			image.pivotY = 44;
+			
+			_fire.x = 10;
+			_fire.y = -40;
 		}
 	}
 }

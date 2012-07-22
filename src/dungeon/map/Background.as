@@ -1,5 +1,9 @@
 package dungeon.map
 {
+	import flash.geom.Point;
+	import starling.display.Image;
+	import flash.display.BitmapData;
+	import starling.textures.Texture;
 	import assets.BackgroundSegmentUI;
 	
 	public class Background extends GameObject
@@ -8,23 +12,22 @@ package dungeon.map
 		{
 			super();
 			
-			for (var i: int = 0; i < $width;)
-			{
-				for (var j: int = 0; j < $height;)
-				{
-					var segment: BackgroundSegmentUI = new BackgroundSegmentUI();
-					_container.addChild(segment);
-					segment.x = i;
-					segment.y = j;
-					j += segment.height;
-				}
-				i += segment.width;
-			}
+			var bg: BackgroundSegmentUI = new BackgroundSegmentUI();
+			var bmd: BitmapData = new BitmapData(bg.width, bg.height);
+			bmd.draw(bg);
+			var texture: Texture = Texture.fromBitmapData(bmd);
+			texture.repeat = true;
 			
-			_container.x = $width-width;
-			_container.y = $height-height;
+			var rx: Number = $width/bg.width;
+			var ry: Number = $height/bg.height;
+			var image: Image = new Image(texture);
+			image.setTexCoords(1, new Point(rx, 0));
+			image.setTexCoords(2, new Point(0, ry));
+			image.setTexCoords(3, new Point(rx, ry));
+			image.width *= rx;
+			image.height *= ry;
 			
-			cacheAsBitmap = true;
+			_container.addChild(image);
 		}
 	}
 }

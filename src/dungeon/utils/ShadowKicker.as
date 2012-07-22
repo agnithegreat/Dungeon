@@ -1,13 +1,15 @@
 package dungeon.utils
 {
+	import dungeon.system.GameSystem;
+	import assets.ShadowKickerTextureUI;
+	import starling.display.Sprite;
+	import starling.textures.Texture;
+	import flash.display.BitmapData;
+	import starling.display.Image;
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.GameObject;
-	
-	import flash.display.GradientType;
-	import flash.display.Shape;
-	import flash.geom.Matrix;
 
-	public class ShadowKicker extends Shape
+	public class ShadowKicker extends Sprite
 	{
 		protected var _target: GameObject;
 		public function get target():GameObject {
@@ -19,34 +21,43 @@ package dungeon.utils
 			return _radius;
 		}
 		
+		private var _scaleOffset: Number;
+		private var _scaleSpeed: Number;
+		
 		public function ShadowKicker($target: GameObject, $radius: int) {
+			var bg: ShadowKickerTextureUI = new ShadowKickerTextureUI();
+			var bmd: BitmapData = new BitmapData(bg.width, bg.height, true, 0x00000000);
+			bmd.draw(bg);
+			var texture: Texture = Texture.fromBitmapData(bmd);
+			
+			var image: Image = new Image(texture);
+			image.width = image.height = $radius*2;
+			addChild(image);
+			
 			_target = $target;
 			_target.addEventListener(GameObjectEvent.OBJECT_MOVE, handleMove);
 			_target.addEventListener(GameObjectEvent.OBJECT_DESTROY, handleDestroy);
 			_radius = $radius;
 			
-			draw();
+			pivotX = pivotY = $radius;
+			
 			handleMove(null);
+			
+			_scaleOffset = Math.random()*100;
+			_scaleSpeed = Math.random()*0.01+0.005;
+			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
 		}
-		
-		public function draw():void {
-			graphics.clear();
-			var m:Matrix = new Matrix();
-			m.createGradientBox(_radius*2, _radius*2);
-			graphics.beginGradientFill(
-				GradientType.RADIAL,
-				[0x0000ff, 0x12f691, 0x101274],
-				[1, 0.3, 0],
-				[0, 127, 255],
-				m
-			);
-			graphics.drawCircle(_radius, _radius, _radius);
-			graphics.endFill();
+
+		protected function handleTick(e : GameObjectEvent) : void {
+			var date: Date = new Date();
+			var mod: int = _scaleOffset+date.getTime()*_scaleSpeed;
+			scaleX = 1+Math.sin(mod)*0.05;
+			scaleY = 1+Math.sin(mod)*0.05;
 		}
 		
 		private function handleMove(e: GameObjectEvent):void {
-			x = _target.center.x-_radius;
-			y = _target.center.y-_radius;
+			x = _target.center.x;
+			y = _target.center.y;
 		}
 		
 		private function handleDestroy(e: GameObjectEvent):void {

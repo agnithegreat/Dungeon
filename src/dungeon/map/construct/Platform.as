@@ -10,8 +10,6 @@ package dungeon.map.construct
 			super();
 			
 			GameSystem.registerPlatform(this);
-			
-			cacheAsBitmap = true;
 		}
 	}
 }
