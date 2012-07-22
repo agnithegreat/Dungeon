@@ -41,6 +41,14 @@ package dungeon.map
 			
 			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
 		}
+		
+		public function addToGameSystem():void {
+			
+		}
+		
+		public function removeFromGameSystem():void {
+			
+		}
 
 		protected function handleTick(e : GameObjectEvent) : void {
 		}
@@ -54,7 +62,7 @@ package dungeon.map
 		}
 		
 		public function destroy():void {
-			
+			removeFromGameSystem();
 		}
 	}
 }

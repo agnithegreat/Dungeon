@@ -1,5 +1,6 @@
 package dungeon.system
 {
+	import dungeon.utils.construct.RoomConstructor;
 	import dungeon.events.GameObjectEvent;
 	import starling.events.Event;
 	import starling.events.EventDispatcher;
@@ -19,6 +20,78 @@ package dungeon.system
 	public class GameSystem
 	{
 		public static var GRAVITY: Number = -0.5;
+		
+		
+		// -- EventDispatcher --
+		private static var _timer: Timer;
+		private static var _eventDispatcher: EventDispatcher;
+		public static function addEventListener($event: String, $callback: Function):void {
+			_eventDispatcher.addEventListener($event, $callback);
+		}
+		private static function dispatchEvent($event: Event):void {
+			_eventDispatcher.dispatchEvent($event);
+		}
+		// -- EventDispatcher --
+		
+		
+		public static function init($view: Sprite):void {
+			_eventDispatcher = new EventDispatcher();
+			
+			initView($view);
+			initModel();
+			
+			_timer = new Timer(30);
+			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
+			_timer.start();
+		}
+		
+		private static function handleTimer(e: TimerEvent):void {
+			dispatchEvent(new GameObjectEvent(GameObjectEvent.TICK));
+		}
+		
+		
+		
+		private static var _world: GameObjectSection;
+		private static function initModel():void {
+			_world = GameObjectSection.createWorld();
+			for (var i : int = 0; i < 2; i++) {
+				var location: GameObjectSection = GameObjectSection.createLocation();
+				_world.addSection(location);
+				for (var j : int = 0; j < 4; j++) {
+					var floor: GameObjectSection = GameObjectSection.createLevel();
+					location.addSection(floor);
+					for (var k : int = 0; k < 3; k++) {
+						var room: GameObjectSection = GameObjectSection.createRoom();
+						RoomConstructor.constructRoom(room);
+						floor.addSection(room);
+					}
+				}
+			}
+		}
+		
+		
+		// -- view --
+		private static var _view: Sprite;
+		private static var _map: DefaultStarlingMap;
+		private static var _shadow: ShadowContainer;
+		public static function addShadowKicker($object: GameObject, $radius: int):void {
+			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
+		}
+		private static function initView($view: Sprite):void {
+			_view = $view;
+			
+			_shadow = ShadowContainer.applyShadow(_view);
+			
+			_map = new DefaultStarlingMap();
+			_view.addChildAt(_map, 0);
+			_map.init();
+		}
+		// -- view --
+		
+		
+		
+		
+		
 		
 		private static var _platforms: Array = [];
 		public static function registerPlatform($platform: Platform):void
@@ -96,42 +169,6 @@ package dungeon.system
 				}
 			}
 			return personages;
-		}
-		
-		private static var _view: Sprite;
-		private static var _map: DefaultStarlingMap;
-		private static var _shadow: ShadowContainer;
-		public static function addShadowKicker($object: GameObject, $radius: int):void {
-			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
-		}
-		
-		private static var _timer: Timer;
-		private static var _eventDispatcher: EventDispatcher;
-		public static function addEventListener($event: String, $callback: Function):void {
-			_eventDispatcher.addEventListener($event, $callback);
-		}
-		private static function dispatchEvent($event: Event):void {
-			_eventDispatcher.dispatchEvent($event);
-		}
-		
-		public static function init($view: Sprite):void {
-			_eventDispatcher = new EventDispatcher();
-			
-			_view = $view;
-			
-			_shadow = ShadowContainer.applyShadow(_view);
-			
-			_map = new DefaultStarlingMap();
-			_view.addChildAt(_map, 0);
-			_map.init();
-			
-			_timer = new Timer(30);
-			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
-			_timer.start();
-		}
-		
-		private static function handleTimer(e: TimerEvent):void {
-			dispatchEvent(new GameObjectEvent(GameObjectEvent.TICK));
 		}
 	}
 }

@@ -34,8 +34,6 @@ package dungeon.personage
 		{
 			super();
 			
-			GameSystem.registerPersonage(this);
-			
 			var pers: MovieClip = new $class();
 			var bmd: BitmapData = new BitmapData(pers.width, pers.height, true, 0x00000000);
 			bmd.draw(pers);
@@ -48,6 +46,14 @@ package dungeon.personage
 			
 			_speedX = 0;
 			_speedY = 0;
+		}
+		
+		override public function addToGameSystem():void {
+			GameSystem.registerPersonage(this);
+		}
+		
+		override public function removeFromGameSystem():void {
+			GameSystem.clearPersonage(this);
 		}
 		
 		override protected function handleTick(e: GameObjectEvent):void {
