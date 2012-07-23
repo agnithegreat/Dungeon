@@ -5,13 +5,18 @@ package dungeon.map.construct
 
 	public class Platform extends GameObject
 	{
-		public function Platform()
-		{
-			super();
-			
+		override public function get z():uint {
+			return 0xA0000;
+		}
+		
+		override protected function addToGameSystem():void {
+			super.addToGameSystem();
 			GameSystem.registerPlatform(this);
-			
-			cacheAsBitmap = true;
+		}
+		
+		override protected function removeFromGameSystem():void {
+			super.removeFromGameSystem();
+			GameSystem.clearPlatform(this);
 		}
 	}
 }

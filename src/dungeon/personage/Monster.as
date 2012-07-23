@@ -1,15 +1,14 @@
 package dungeon.personage
 {
+	import dungeon.events.GameObjectEvent;
 	import assets.MonsterUI;
 	
 	import dungeon.system.GameSystem;
-	
-	import flash.events.TimerEvent;
 
 	public class Monster extends Personage
 	{
 		private static var speed: Number = 2;
-		private static var walkRange: int = 100;
+		private static var walkRange: int = -1;
 		
 		private var _startX: int;
 		
@@ -19,14 +18,24 @@ package dungeon.personage
 		}
 		
 		override public function init():void {
+			super.init();
+			
 			_startX = x;
 			_speedX = speed;
 			
-			super.init();
+			if (Math.random()>0.5) {
+				turn(!_side);
+			}
+			
+			addEventListener(GameObjectEvent.OBJECT_STUCK_X, handleStuckX);
+		}
+
+		private function handleStuckX(e: GameObjectEvent) : void {
+			turn(!_side);
 		}
 		
-		override protected function handleTimer(e: TimerEvent):void {
-			if (Math.abs(x+_speedX-_startX)>walkRange/2) {
+		override protected function handleTick(e: GameObjectEvent):void {
+			if (walkRange>=0 && Math.abs(x+_speedX-_startX)>walkRange/2) {
 				turn(!_side);
 			}
 			
@@ -37,11 +46,20 @@ package dungeon.personage
 				var hit: Personage = hits[i];
 				hit.doDamage();
 			}
+			
+			animation();
 		}
 		
 		override public function turn($left: Boolean):void {
 			_speedX *= -1;
 			super.turn($left);
+		}
+		
+		private function animation():void {
+			var date: Date = new Date();
+			var mod: Number = date.getTime()/100;
+			_personage.scaleX = 1+Math.sin(mod)*0.15+0.15;
+//			_personage.scaleY = 1+Math.cos(mod)*0.1-0.1;
 		}
 	}
 }

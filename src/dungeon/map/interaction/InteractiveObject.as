@@ -5,11 +5,18 @@ package dungeon.map.interaction
 
 	public class InteractiveObject extends GameObject
 	{
-		public function InteractiveObject()
-		{
-			super();
-			
+		override public function get z():uint {
+			return 0xA00;
+		}
+		
+		override protected function addToGameSystem():void {
+			super.addToGameSystem();
 			GameSystem.registerInteractive(this);
+		}
+		
+		override protected function removeFromGameSystem():void {
+			super.removeFromGameSystem();
+			GameSystem.clearInteractive(this);
 		}
 		
 		public function interact():void {

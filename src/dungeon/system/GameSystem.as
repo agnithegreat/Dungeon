@@ -1,19 +1,106 @@
 package dungeon.system
 {
+	import flash.geom.Rectangle;
 	import dungeon.map.DefaultMap;
-	import dungeon.map.GameObject;
-	import dungeon.map.interaction.InteractiveObject;
-	import dungeon.map.construct.Platform;
-	import dungeon.personage.Personage;
-	import dungeon.utils.ShadowContainer;
+	import dungeon.utils.construct.RoomConstructor;
+	import dungeon.events.GameObjectEvent;
+	import starling.events.Event;
+	import starling.events.EventDispatcher;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	import dungeon.utils.ShadowKicker;
+	import dungeon.personage.Personage;
+	import dungeon.map.interaction.InteractiveObject;
+	import starling.display.DisplayObject;
+	import dungeon.map.construct.Platform;
+	import dungeon.map.GameObject;
+	import dungeon.utils.ShadowContainer;
 	
-	import flash.display.DisplayObject;
-	import flash.display.Sprite;
+	import starling.display.Sprite;
 
 	public class GameSystem
 	{
 		public static var GRAVITY: Number = -0.5;
+		
+		
+		// -- EventDispatcher --
+		private static var _timer: Timer;
+		private static var _eventDispatcher: EventDispatcher;
+		public static function addEventListener($event: String, $callback: Function):void {
+			_eventDispatcher.addEventListener($event, $callback);
+		}
+		private static function dispatchEvent($event: Event):void {
+			_eventDispatcher.dispatchEvent($event);
+		}
+		// -- EventDispatcher --
+		
+		
+		public static function init($view: Sprite):void {
+			_eventDispatcher = new EventDispatcher();
+			
+			initModel();
+			initView($view);
+			
+			_timer = new Timer(30);
+			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
+			_timer.start();
+		}
+		
+		private static function handleTimer(e: TimerEvent):void {
+			dispatchEvent(new GameObjectEvent(GameObjectEvent.TICK));
+		}
+		
+		
+		
+		private static var _world: GameObjectSection;
+		private static function initModel():void {
+			_world = GameObjectSection.createWorld();
+			for (var i : int = 0; i < 2; i++) {
+				var location: GameObjectSection = GameObjectSection.createLocation();
+				location.init(new Rectangle(0, 0, Dungeon.gameWidth, Dungeon.gameHeight));
+				_world.addSection(location);
+				for (var j : int = 0; j < 4; j++) {
+					var floor: GameObjectSection = GameObjectSection.createLevel();
+					floor.init(new Rectangle(0, j*Dungeon.floorHeight, Dungeon.gameWidth, Dungeon.floorHeight));
+					location.addSection(floor);
+					for (var k : int = 0; k < 4; k++) {
+						var room: GameObjectSection = GameObjectSection.createRoom();
+						room.init(new Rectangle(k*Dungeon.gameWidth/4, j*Dungeon.floorHeight, Dungeon.gameWidth/4, Dungeon.floorHeight));
+						RoomConstructor.constructRoom(room);
+						floor.addSection(room);
+					}
+				}
+			}
+		}
+		
+		
+		// -- view --
+		private static var _view: Sprite;
+		private static var _map: DefaultMap;
+		public static function get map():DefaultMap {
+			return _map;
+		}
+		
+		private static function initView($view: Sprite):void {
+			_view = $view;
+			
+			_shadow = ShadowContainer.applyShadow(_view);
+			
+			_map = new DefaultMap();
+			_view.addChildAt(_map, 0);
+			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
+		}
+		
+		private static var _shadow: ShadowContainer;
+		public static function addShadowKicker($object: GameObject, $radius: int):void {
+			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
+		}
+		// -- view --
+		
+		
+		
+		
+		
 		
 		private static var _platforms: Array = [];
 		public static function registerPlatform($platform: Platform):void
@@ -91,23 +178,6 @@ package dungeon.system
 				}
 			}
 			return personages;
-		}
-		
-		private static var _view: Sprite;
-		private static var _map: DefaultMap;
-		private static var _shadow: ShadowContainer;
-		public static function addShadowKicker($object: GameObject, $radius: int):void {
-			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
-		}
-		
-		public static function init($view: Sprite):void {
-			_view = $view;
-			
-			_shadow = ShadowContainer.applyShadow(_view);
-			
-			_map = new DefaultMap();
-			_view.addChildAt(_map, 0);
-			_map.init();
 		}
 	}
 }
