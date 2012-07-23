@@ -36,19 +36,19 @@ package dungeon.utils.construct {
 		}
 		
 		private static function createLadders():void {
-			var ladder: Ladder = new Ladder(_room.bounds.height+20);
-			ladder.x = _room.bounds.x+_room.bounds.width/3;
-			ladder.y = _room.bounds.y-36;
+			var ladder: Ladder = new Ladder(_room.bounds.height*0.8);
+			ladder.x = _room.bounds.x+_room.bounds.width/2;
+			ladder.y = _room.bounds.y-_room.bounds.height*0.2;
 			_room.addObject(ladder);
 		}
 		
 		private static function createTorches():void {
-			var torch: Torch = new WallTorch(true, true);
+			var torch: Torch = new WallTorch(true);
 			torch.x = _room.bounds.x+16;
 			torch.y = _room.bounds.y+_room.bounds.height-10;
 			_room.addObject(torch);
 			
-			torch = new WallTorch(false, true);
+			torch = new WallTorch(false);
 			torch.x = _room.bounds.x+_room.bounds.width-16;
 			torch.y = _room.bounds.y+_room.bounds.height-10;
 			_room.addObject(torch);
@@ -84,10 +84,12 @@ package dungeon.utils.construct {
 		}
 		
 		private static function createMonsters():void {
-			var monster: Monster = new Monster();
-			monster.x = _room.bounds.x+_room.bounds.width*(Math.random()*0.8+0.1);
-			monster.y = _room.bounds.y+_room.bounds.height-30;
-			_room.addObject(monster);
+			if (Math.random()>0.5) {
+				var monster: Monster = new Monster();
+				monster.x = _room.bounds.x+_room.bounds.width*(Math.random()*0.6+0.2);
+				monster.y = _room.bounds.y+_room.bounds.height-30;
+				_room.addObject(monster);
+			}
 		}
 	}
 }

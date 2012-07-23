@@ -141,18 +141,7 @@ package dungeon.system {
 				stor = stor.concat(section.storage);
 			}
 			stor = stor.concat(_storage);
-			stor = stor.sort(sort);
 			return stor;
-		}
-		
-		private function sort($1: GameObject, $2: GameObject):int {
-			if ($1.z>$2.z) {
-				return 1;
-			}
-			if ($1.z<$2.z) {
-				return -1;
-			}
-			return 0;
 		}
 
 		public function GameObjectSection($id: String) {

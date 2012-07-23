@@ -1,5 +1,6 @@
 package dungeon.system
 {
+	import dungeon.personage.Player;
 	import flash.geom.Rectangle;
 	import dungeon.map.DefaultMap;
 	import dungeon.utils.construct.RoomConstructor;
@@ -63,11 +64,13 @@ package dungeon.system
 					var floor: GameObjectSection = GameObjectSection.createLevel();
 					floor.init(new Rectangle(0, j*Dungeon.floorHeight, Dungeon.gameWidth, Dungeon.floorHeight));
 					location.addSection(floor);
-					for (var k : int = 0; k < 4; k++) {
-						var room: GameObjectSection = GameObjectSection.createRoom();
-						room.init(new Rectangle(k*Dungeon.gameWidth/4, j*Dungeon.floorHeight, Dungeon.gameWidth/4, Dungeon.floorHeight));
-						RoomConstructor.constructRoom(room);
-						floor.addSection(room);
+					for (var k : int = 0; k < 3; k++) {
+						if (Math.random()>0.3) {
+							var room: GameObjectSection = GameObjectSection.createRoom();
+							room.init(new Rectangle(k*Dungeon.gameWidth/3, j*Dungeon.floorHeight, Dungeon.gameWidth/3, Dungeon.floorHeight));
+							RoomConstructor.constructRoom(room);
+							floor.addSection(room);
+						}
 					}
 				}
 			}
@@ -88,7 +91,12 @@ package dungeon.system
 			
 			_map = new DefaultMap();
 			_view.addChildAt(_map, 0);
-			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
+			
+			var player: Player = new Player();
+			player.x = Dungeon.gameWidth/2;
+			player.y = Dungeon.gameHeight/6;
+			
+			_map.init(_world.getSection(GameObjectSection.LOCATION+0), player);
 		}
 		
 		private static var _shadow: ShadowContainer;
