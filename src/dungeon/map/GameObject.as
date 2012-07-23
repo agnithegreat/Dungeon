@@ -23,6 +23,11 @@ package dungeon.map
 			dispatchMove();
 		}
 		
+		// z-index for sorting on stage
+		public function get z():uint {
+			return 0;
+		}
+		
 		protected var _container: Sprite;
 		
 		protected var _center: Point;
@@ -42,11 +47,15 @@ package dungeon.map
 			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
 		}
 		
-		public function addToGameSystem():void {
+		public function init():void {
+			addToGameSystem();
+		}
+		
+		protected function addToGameSystem():void {
 			
 		}
 		
-		public function removeFromGameSystem():void {
+		protected function removeFromGameSystem():void {
 			
 		}
 

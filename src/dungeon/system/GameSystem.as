@@ -1,5 +1,7 @@
 package dungeon.system
 {
+	import flash.geom.Rectangle;
+	import dungeon.map.DefaultMap;
 	import dungeon.utils.construct.RoomConstructor;
 	import dungeon.events.GameObjectEvent;
 	import starling.events.Event;
@@ -11,7 +13,6 @@ package dungeon.system
 	import dungeon.map.interaction.InteractiveObject;
 	import starling.display.DisplayObject;
 	import dungeon.map.construct.Platform;
-	import dungeon.map.DefaultStarlingMap;
 	import dungeon.map.GameObject;
 	import dungeon.utils.ShadowContainer;
 	
@@ -37,8 +38,8 @@ package dungeon.system
 		public static function init($view: Sprite):void {
 			_eventDispatcher = new EventDispatcher();
 			
-			initView($view);
 			initModel();
+			initView($view);
 			
 			_timer = new Timer(30);
 			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
@@ -56,12 +57,15 @@ package dungeon.system
 			_world = GameObjectSection.createWorld();
 			for (var i : int = 0; i < 2; i++) {
 				var location: GameObjectSection = GameObjectSection.createLocation();
+				location.init(new Rectangle(0, 0, Dungeon.gameWidth, Dungeon.gameHeight));
 				_world.addSection(location);
 				for (var j : int = 0; j < 4; j++) {
 					var floor: GameObjectSection = GameObjectSection.createLevel();
+					floor.init(new Rectangle(0, j*Dungeon.floorHeight, Dungeon.gameWidth, Dungeon.floorHeight));
 					location.addSection(floor);
-					for (var k : int = 0; k < 3; k++) {
+					for (var k : int = 0; k < 4; k++) {
 						var room: GameObjectSection = GameObjectSection.createRoom();
+						room.init(new Rectangle(k*Dungeon.gameWidth/4, j*Dungeon.floorHeight, Dungeon.gameWidth/4, Dungeon.floorHeight));
 						RoomConstructor.constructRoom(room);
 						floor.addSection(room);
 					}
@@ -72,19 +76,24 @@ package dungeon.system
 		
 		// -- view --
 		private static var _view: Sprite;
-		private static var _map: DefaultStarlingMap;
-		private static var _shadow: ShadowContainer;
-		public static function addShadowKicker($object: GameObject, $radius: int):void {
-			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
+		private static var _map: DefaultMap;
+		public static function get map():DefaultMap {
+			return _map;
 		}
+		
 		private static function initView($view: Sprite):void {
 			_view = $view;
 			
 			_shadow = ShadowContainer.applyShadow(_view);
 			
-			_map = new DefaultStarlingMap();
+			_map = new DefaultMap();
 			_view.addChildAt(_map, 0);
-			_map.init();
+			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
+		}
+		
+		private static var _shadow: ShadowContainer;
+		public static function addShadowKicker($object: GameObject, $radius: int):void {
+			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
 		}
 		// -- view --
 		

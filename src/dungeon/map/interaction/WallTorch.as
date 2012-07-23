@@ -7,9 +7,8 @@ package dungeon.map.interaction
 	
 	public class WallTorch extends Torch
 	{
-		public function WallTorch($isLeftSided: Boolean)
-		{
-			super();
+		public function WallTorch($isLeftSided : Boolean, $lighted : Boolean = false) {
+			super($lighted);
 			
 			var bg: WallTorchUI = new WallTorchUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height, true, 0x00000000);

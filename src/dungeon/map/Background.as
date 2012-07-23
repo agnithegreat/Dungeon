@@ -8,6 +8,10 @@ package dungeon.map
 	
 	public class Background extends GameObject
 	{
+		override public function get z():uint {
+			return 0xA0;
+		}
+		
 		public function Background($width: int, $height: int)
 		{
 			super();

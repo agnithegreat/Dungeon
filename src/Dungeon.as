@@ -10,6 +10,7 @@ package {
 		
 		public static var gameWidth: int = 768;
 		public static var gameHeight: int = 512;
+		public static var floorHeight: int = 128;
 		
 		private var _starling: Starling;
 		

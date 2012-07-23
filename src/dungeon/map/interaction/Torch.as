@@ -10,21 +10,26 @@ package dungeon.map.interaction
 		
 		protected var _lighted: Boolean;
 		
-		public function Torch()
+		public function Torch($lighted: Boolean = false)
 		{
 			super();
+			
+			_lighted = $lighted;
 			
 			_fire = new Fire();
 			_fire.pivotX = _fire.width/2;
 			_fire.pivotY = _fire.height;
 		}
 		
+		override public function init():void {
+			super.init();
+			if (_lighted) {
+				interact();
+			}
+		}
+		
 		override public function interact():void
 		{
-			if (_lighted) {
-				return;
-			}
-			
 			_container.addChildAt(_fire, 0);
 			_fire.activate();
 			

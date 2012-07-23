@@ -16,6 +16,10 @@ package dungeon.personage
 	
 	public class Personage extends GameObject
 	{
+		override public function get z():uint {
+			return 0xA000;
+		}
+		
 		protected var _personage: Image;
 		
 		protected var _interactive: Boolean;
@@ -48,11 +52,13 @@ package dungeon.personage
 			_speedY = 0;
 		}
 		
-		override public function addToGameSystem():void {
+		override protected function addToGameSystem():void {
+			super.addToGameSystem();
 			GameSystem.registerPersonage(this);
 		}
 		
-		override public function removeFromGameSystem():void {
+		override protected function removeFromGameSystem():void {
+			super.removeFromGameSystem();
 			GameSystem.clearPersonage(this);
 		}
 		
@@ -60,7 +66,9 @@ package dungeon.personage
 			move();
 		}
 		
-		public function init():void {
+		override public function init():void {
+			super.init();
+			
 			_personage.pivotX = _personage.width/2;
 			_personage.pivotY = _personage.height+1;
 		}

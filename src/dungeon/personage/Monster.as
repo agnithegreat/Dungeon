@@ -18,10 +18,15 @@ package dungeon.personage
 		}
 		
 		override public function init():void {
+			super.init();
+			
 			_startX = x;
 			_speedX = speed;
 			
-			super.init();
+			if (Math.random()>0.5) {
+				turn(!_side);
+			}
+			
 			addEventListener(GameObjectEvent.OBJECT_STUCK_X, handleStuckX);
 		}
 
@@ -54,7 +59,7 @@ package dungeon.personage
 			var date: Date = new Date();
 			var mod: Number = date.getTime()/100;
 			_personage.scaleX = 1+Math.sin(mod)*0.15+0.15;
-			_personage.scaleY = 1+Math.cos(mod)*0.1-0.1;
+//			_personage.scaleY = 1+Math.cos(mod)*0.1-0.1;
 		}
 	}
 }
