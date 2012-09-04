@@ -1,13 +1,20 @@
 package editor.tools {
-	import starling.events.TouchPhase;
-	import starling.events.TouchEvent;
-	import starling.display.Quad;
 	import dungeon.map.GameObject;
-	import flash.geom.Point;
-	import starling.display.DisplayObjectContainer;
 	import dungeon.map.construct.Resizable;
+	
+	import flash.events.Event;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.ui.Keyboard;
+	import flash.utils.Dictionary;
+	
+	import starling.core.Starling;
+	import starling.display.DisplayObjectContainer;
+	import starling.display.Quad;
 	import starling.display.Sprite;
+	import starling.events.KeyboardEvent;
+	import starling.events.TouchEvent;
+	import starling.events.TouchPhase;
 
 	/**
 	 * @author agnithegreat
@@ -15,6 +22,7 @@ package editor.tools {
 	public class ResizingUtil extends Sprite {
 		
 		public static var border: int = 5;
+		public static var manualDelta: int = 2;
 		
 		private var _bounds: Rectangle;
 		
@@ -40,6 +48,11 @@ package editor.tools {
 		
 		private var _moveCache: Point;
 		
+		private var _ctrlState: Boolean;
+		private var _pushed: Dictionary;
+		
+		private var _resizingPanel: ResizingPanel;
+		
 		public function ResizingUtil() {
 			_objectContainer = new Sprite();
 			addChild(_objectContainer);
@@ -47,6 +60,9 @@ package editor.tools {
 			_bordersContainer = new Sprite();
 			_bordersContainer.alpha = 0.6;
 			addChild(_bordersContainer);
+			
+			_resizingPanel = new ResizingPanel();
+			_resizingPanel.x = 1024;
 			
 			createControls();
 		}
@@ -81,6 +97,9 @@ package editor.tools {
 		}
 		
 		public function edit($target: GameObject):void {
+			Starling.current.nativeOverlay.addChild(_resizingPanel);
+			_resizingPanel.addEventListener(ResizingPanel.UPDATE, handleResize);
+			
 			_parent = $target.parent;
 			_position = new Point($target.x, $target.y);
 			
@@ -91,6 +110,64 @@ package editor.tools {
 			resize(_target.width, _target.height, false);
 			
 			_parent.addChild(this);
+			
+			addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
+			_pushed = new Dictionary();
+		}
+		
+		protected function handleResize(e:Event):void
+		{
+			var data: Object = _resizingPanel.getData();
+			move(data.x, data.y);
+			resize(data.w, data.h);
+		}
+		
+		private function handleKeyDown(e: KeyboardEvent):void {
+/*			if (_pushed[e.keyCode]) {
+				return;
+			}*/
+			_pushed[e.keyCode] = true;
+			switch (e.keyCode) {
+				case Keyboard.CONTROL:
+					_ctrlState = true;
+					break;
+				case Keyboard.LEFT:
+					move(_bounds.x-manualDelta, _bounds.y);
+					if (_ctrlState) {
+						resize(_bounds.width+manualDelta, _bounds.height);
+					}
+					break;
+				case Keyboard.RIGHT:
+					if (_ctrlState) {
+						resize(_bounds.width+manualDelta, _bounds.height);
+					} else {
+						move(_bounds.x+manualDelta, _bounds.y);
+					}
+					break;
+				case Keyboard.UP:
+					move(_bounds.x, _bounds.y-manualDelta);
+					if (_ctrlState) {
+						resize(_bounds.width, _bounds.height+manualDelta);
+					}
+					break;
+				case Keyboard.DOWN:
+					if (_ctrlState) {
+						resize(_bounds.width, _bounds.height+manualDelta);
+					} else {
+						move(_bounds.x, _bounds.y+manualDelta);
+					}
+					break;
+			}
+		}
+		private function handleKeyUp(e: KeyboardEvent):void {
+			delete _pushed[e.keyCode];
+			
+			switch (e.keyCode) {
+				case Keyboard.CONTROL:
+					_ctrlState = false;
+					break;
+			}
 		}
 		
 		public function move($x: int, $y: int):void {
@@ -103,6 +180,8 @@ package editor.tools {
 			
 			x = int(_position.x+_bounds.x);
 			y = int(_position.y+_bounds.y);
+			
+			_resizingPanel.updateInfo(_bounds);
 		}
 		
 		public function resize($width: int, $height: int, $update: Boolean = true):void {
@@ -143,6 +222,15 @@ package editor.tools {
 			_position = null;
 			_target = null;
 			_bounds = null;
+			
+			removeEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			removeEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
+			_pushed = null;
+			
+			if (_resizingPanel.parent) {
+				_resizingPanel.removeEventListener(ResizingPanel.UPDATE, handleResize);
+				Starling.current.nativeOverlay.removeChild(_resizingPanel);
+			}
 		}
 		
 		private function updateControls():void {
