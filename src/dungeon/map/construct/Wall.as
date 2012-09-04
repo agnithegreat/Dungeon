@@ -10,7 +10,7 @@ package dungeon.map.construct
 	{
 		private var _leftSided: Boolean;
 		
-		public function Wall($height: int = 0, $isLeftSided: Boolean = true)
+		public function Wall($height: int = 100, $isLeftSided: Boolean = true)
 		{
 			_leftSided = $isLeftSided;
 			super(0, $height);

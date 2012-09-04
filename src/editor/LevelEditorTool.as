@@ -23,7 +23,7 @@ package editor {
 			stage.frameRate = 60;
 			
 			_starling = new Starling(LevelEditor, stage, new Rectangle(0,0,stage.stageWidth, stage.stageHeight), stage.stage3Ds[0]);
-			_starling.showStats = true;
+//			_starling.showStats = true;
 			_starling.start();
 		}
 	}

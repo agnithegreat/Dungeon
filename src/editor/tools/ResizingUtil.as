@@ -1,18 +1,13 @@
 package editor.tools {
+	import dungeon.map.construct.IResizable;
 	import dungeon.map.GameObject;
-	import dungeon.map.construct.Resizable;
 	
-	import flash.events.Event;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.ui.Keyboard;
-	import flash.utils.Dictionary;
 	
-	import starling.core.Starling;
 	import starling.display.DisplayObjectContainer;
 	import starling.display.Quad;
 	import starling.display.Sprite;
-	import starling.events.KeyboardEvent;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
 
@@ -22,7 +17,9 @@ package editor.tools {
 	public class ResizingUtil extends Sprite {
 		
 		public static var border: int = 5;
-		public static var manualDelta: int = 2;
+		
+		public static var tileWidth: int = 50;
+		public static var tileHeight: int = 50;
 		
 		private var _bounds: Rectangle;
 		
@@ -30,8 +27,8 @@ package editor.tools {
 		public function get target():GameObject {
 			return _target;
 		}
-		public function get resizable():Resizable {
-			return _target as Resizable;
+		public function get resizable():IResizable {
+			return _target as IResizable;
 		}
 		
 		private var _objectContainer: Sprite;
@@ -46,12 +43,7 @@ package editor.tools {
 		private var _rightBorder: Quad;
 		private var _screen: Quad;
 		
-		private var _moveCache: Point;
-		
-		private var _ctrlState: Boolean;
-		private var _pushed: Dictionary;
-		
-		private var _resizingPanel: ResizingPanel;
+		private var _moveStart: Point;
 		
 		public function ResizingUtil() {
 			_objectContainer = new Sprite();
@@ -60,9 +52,6 @@ package editor.tools {
 			_bordersContainer = new Sprite();
 			_bordersContainer.alpha = 0.6;
 			addChild(_bordersContainer);
-			
-			_resizingPanel = new ResizingPanel();
-			_resizingPanel.x = 1024;
 			
 			createControls();
 		}
@@ -76,30 +65,27 @@ package editor.tools {
 			_bordersContainer.addChild(_screen);
 			
 			_topBorder = new Quad(_bounds.width, border, 0xFF0000);
-			_topBorder.addEventListener(TouchEvent.TOUCH, handleDragUp);
+			_topBorder.addEventListener(TouchEvent.TOUCH, handleDrag);
 			_topBorder.y = -border/2;
 			_bordersContainer.addChild(_topBorder);
 			
 			_bottomBorder = new Quad(_bounds.width, border, 0xFF0000);
-			_bottomBorder.addEventListener(TouchEvent.TOUCH, handleDragDown);
+			_bottomBorder.addEventListener(TouchEvent.TOUCH, handleDrag);
 			_bottomBorder.y = _bounds.height-border/2;
 			_bordersContainer.addChild(_bottomBorder);
 			
 			_leftBorder = new Quad(border, _bounds.height, 0xFF0000);
-			_leftBorder.addEventListener(TouchEvent.TOUCH, handleDragLeft);
+			_leftBorder.addEventListener(TouchEvent.TOUCH, handleDrag);
 			_leftBorder.x = -border/2;
 			_bordersContainer.addChild(_leftBorder);
 			
 			_rightBorder = new Quad(border, _bounds.height, 0xFF0000);
-			_rightBorder.addEventListener(TouchEvent.TOUCH, handleDragRight);
+			_rightBorder.addEventListener(TouchEvent.TOUCH, handleDrag);
 			_rightBorder.x = _bounds.width-border/2;
 			_bordersContainer.addChild(_rightBorder);
 		}
 		
 		public function edit($target: GameObject):void {
-			Starling.current.nativeOverlay.addChild(_resizingPanel);
-			_resizingPanel.addEventListener(ResizingPanel.UPDATE, handleResize);
-			
 			_parent = $target.parent;
 			_position = new Point($target.x, $target.y);
 			
@@ -110,64 +96,6 @@ package editor.tools {
 			resize(_target.width, _target.height, false);
 			
 			_parent.addChild(this);
-			
-			addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-			addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
-			_pushed = new Dictionary();
-		}
-		
-		protected function handleResize(e:Event):void
-		{
-			var data: Object = _resizingPanel.getData();
-			move(data.x, data.y);
-			resize(data.w, data.h);
-		}
-		
-		private function handleKeyDown(e: KeyboardEvent):void {
-/*			if (_pushed[e.keyCode]) {
-				return;
-			}*/
-			_pushed[e.keyCode] = true;
-			switch (e.keyCode) {
-				case Keyboard.CONTROL:
-					_ctrlState = true;
-					break;
-				case Keyboard.LEFT:
-					move(_bounds.x-manualDelta, _bounds.y);
-					if (_ctrlState) {
-						resize(_bounds.width+manualDelta, _bounds.height);
-					}
-					break;
-				case Keyboard.RIGHT:
-					if (_ctrlState) {
-						resize(_bounds.width+manualDelta, _bounds.height);
-					} else {
-						move(_bounds.x+manualDelta, _bounds.y);
-					}
-					break;
-				case Keyboard.UP:
-					move(_bounds.x, _bounds.y-manualDelta);
-					if (_ctrlState) {
-						resize(_bounds.width, _bounds.height+manualDelta);
-					}
-					break;
-				case Keyboard.DOWN:
-					if (_ctrlState) {
-						resize(_bounds.width, _bounds.height+manualDelta);
-					} else {
-						move(_bounds.x, _bounds.y+manualDelta);
-					}
-					break;
-			}
-		}
-		private function handleKeyUp(e: KeyboardEvent):void {
-			delete _pushed[e.keyCode];
-			
-			switch (e.keyCode) {
-				case Keyboard.CONTROL:
-					_ctrlState = false;
-					break;
-			}
 		}
 		
 		public function move($x: int, $y: int):void {
@@ -175,19 +103,20 @@ package editor.tools {
 				_bounds = new Rectangle();
 			}
 			
-			_bounds.x = $x;
-			_bounds.y = $y;
+			_bounds.x = Math.round($x/tileWidth)*tileWidth;
+			_bounds.y = Math.round($y/tileHeight)*tileHeight;
 			
 			x = int(_position.x+_bounds.x);
 			y = int(_position.y+_bounds.y);
-			
-			_resizingPanel.updateInfo(_bounds);
 		}
 		
 		public function resize($width: int, $height: int, $update: Boolean = true):void {
 			if (!_bounds) {
 				_bounds = new Rectangle();
 			}
+			
+			$width = Math.round($width/tileWidth)*tileWidth;
+			$height = Math.round($height/tileHeight)*tileHeight;
 			
 			$width = Math.max($width, border*2);
 			$height = Math.max($height, border*2);
@@ -199,8 +128,8 @@ package editor.tools {
 				resizable.resize(_bounds.width, _bounds.height);
 			}
 			
-			_bounds.width = resizable.width;
-			_bounds.height = resizable.height;
+			_bounds.width = _target.width;
+			_bounds.height = _target.height;
 			
 			move(_bounds.x, _bounds.y);
 			
@@ -222,15 +151,6 @@ package editor.tools {
 			_position = null;
 			_target = null;
 			_bounds = null;
-			
-			removeEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-			removeEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
-			_pushed = null;
-			
-			if (_resizingPanel.parent) {
-				_resizingPanel.removeEventListener(ResizingPanel.UPDATE, handleResize);
-				Starling.current.nativeOverlay.removeChild(_resizingPanel);
-			}
 		}
 		
 		private function updateControls():void {
@@ -258,76 +178,41 @@ package editor.tools {
 			var newMove: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
 			switch (e.touches[0].phase) {
 				case TouchPhase.BEGAN:
-					_moveCache = newMove;
+					_moveStart = newMove;
 					break;
 				case TouchPhase.MOVED:
-					move(_bounds.x+newMove.x-_moveCache.x, _bounds.y+newMove.y-_moveCache.y);
-					_moveCache = newMove;
+					var delta: Point = newMove.subtract(_moveStart);
+					
+					delta.x = Math.round(delta.x/tileWidth)*tileWidth;
+					delta.y = Math.round(delta.y/tileHeight)*tileHeight;
+					
+					_moveStart.x += delta.x;
+					_moveStart.y += delta.y;
+				
+					switch (e.currentTarget) {
+						case _screen:
+							move(_bounds.x+delta.x, _bounds.y+delta.y);
+							break;
+						case _topBorder:
+							move(_bounds.x, _bounds.y+delta.y);
+							resize(_bounds.width, _bounds.height-delta.y);
+							break;
+						case _bottomBorder:
+							resize(_bounds.width, _bounds.height+delta.y);
+							break;
+						case _leftBorder:
+							move(_bounds.x+delta.x, _bounds.y);
+							resize(_bounds.width-delta.x, _bounds.height);
+							break;
+						case _rightBorder:
+							resize(_bounds.width+delta.x, _bounds.height);
+							break;
+					}
+					
+					
 					break;
 				case TouchPhase.ENDED:
-					_moveCache = null;
-					break;
-			}
-		}
-		private function handleDragUp(e : TouchEvent) : void {
-			var newMove: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
-			switch (e.touches[0].phase) {
-				case TouchPhase.BEGAN:
-					_moveCache = newMove;
-					break;
-				case TouchPhase.MOVED:
-					move(_bounds.x, _bounds.y+newMove.y-_moveCache.y);
-					resize(_bounds.width, _bounds.height-newMove.y+_moveCache.y);
-					_moveCache = newMove;
-					break;
-				case TouchPhase.ENDED:
-					_moveCache = null;
-					break;
-			}
-		}
-		private function handleDragDown(e : TouchEvent) : void {
-			var newMove: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
-			switch (e.touches[0].phase) {
-				case TouchPhase.BEGAN:
-					_moveCache = newMove;
-					break;
-				case TouchPhase.MOVED:
-					resize(_bounds.width, _bounds.height+newMove.y-_moveCache.y);
-					_moveCache = newMove;
-					break;
-				case TouchPhase.ENDED:
-					_moveCache = null;
-					break;
-			}
-		}
-		private function handleDragLeft(e : TouchEvent) : void {
-			var newMove: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
-			switch (e.touches[0].phase) {
-				case TouchPhase.BEGAN:
-					_moveCache = newMove;
-					break;
-				case TouchPhase.MOVED:
-					move(_bounds.x+newMove.x-_moveCache.x, _bounds.y);
-					resize(_bounds.width-newMove.x+_moveCache.x, _bounds.height);
-					_moveCache = newMove;
-					break;
-				case TouchPhase.ENDED:
-					_moveCache = null;
-					break;
-			}
-		}
-		private function handleDragRight(e : TouchEvent) : void {
-			var newMove: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
-			switch (e.touches[0].phase) {
-				case TouchPhase.BEGAN:
-					_moveCache = newMove;
-					break;
-				case TouchPhase.MOVED:
-					resize(_bounds.width+newMove.x-_moveCache.x, _bounds.height);
-					_moveCache = newMove;
-					break;
-				case TouchPhase.ENDED:
-					_moveCache = null;
+					_moveStart = null;
 					break;
 			}
 		}

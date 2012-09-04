@@ -8,7 +8,7 @@ package dungeon.map.construct
 	
 	public class Floor extends Platform
 	{
-		public function Floor($width: int = 0)
+		public function Floor($width: int = 100)
 		{
 			super($width, 0);
 		}
