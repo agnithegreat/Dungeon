@@ -11,11 +11,9 @@ package dungeon.events
 		public static const OBJECT_STUCK_Y: String = "object_stuck_y_GameObjectEvent";
 		public static const OBJECT_DESTROY: String = "object_destroy_GameObjectEvent";
 		
-		public var data: Object;
 		public function GameObjectEvent($type:String, $data: Object = null, $bubbles:Boolean=false)
 		{
-			data = $data;
-			super($type, $bubbles);
+			super($type, $bubbles, $data);
 		}
 		
 		public function clone():Event {

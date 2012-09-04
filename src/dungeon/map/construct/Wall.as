@@ -8,9 +8,22 @@ package dungeon.map.construct
 	
 	public class Wall extends Platform
 	{
-		public function Wall($height: int, $isLeftSided: Boolean)
+		private var _leftSided: Boolean;
+		
+		public function Wall($height: int = 0, $isLeftSided: Boolean = true)
 		{
-			super();
+			_leftSided = $isLeftSided;
+			super(0, $height);
+		}
+		
+		override public function resize($width: int = 0, $height: int = 0):void {
+			while (_container.numChildren) {
+				_container.removeChildAt(0);
+			}
+			
+			if (!$height) {
+				return;
+			}
 			
 			var bg: WallSegmentUI = new WallSegmentUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height);
@@ -23,7 +36,7 @@ package dungeon.map.construct
 			image.setTexCoords(1, new Point(1, 0));
 			image.setTexCoords(2, new Point(0, ry));
 			image.setTexCoords(3, new Point(1, ry));
-			image.scaleX = $isLeftSided ? 1 : -1;
+			image.scaleX = _leftSided ? 1 : -1;
 			image.height *= ry;
 			
 			_container.addChild(image);

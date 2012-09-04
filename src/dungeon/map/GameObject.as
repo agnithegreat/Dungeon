@@ -43,12 +43,12 @@ package dungeon.map
 		{
 			_container = new Sprite();
 			addChild(_container);
-			
-			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
 		}
 		
 		public function init():void {
 			addToGameSystem();
+			
+			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
 		}
 		
 		protected function addToGameSystem():void {

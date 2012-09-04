@@ -1,20 +1,30 @@
-package dungeon.map
+package dungeon.map.construct
 {
+	import assets.BackgroundSegmentUI;
+	import flash.display.BitmapData;
 	import flash.geom.Point;
 	import starling.display.Image;
-	import flash.display.BitmapData;
 	import starling.textures.Texture;
-	import assets.BackgroundSegmentUI;
 	
-	public class Background extends GameObject
+	public class Background extends Resizable
 	{
 		override public function get z():uint {
 			return 0xA0;
 		}
 		
-		public function Background($width: int, $height: int)
+		public function Background($width: int = 0, $height: int = 0)
 		{
-			super();
+			super($width, $height);
+		}
+		
+		override public function resize($width: int = 0, $height: int = 0):void {
+			while (_container.numChildren) {
+				_container.removeChildAt(0);
+			}
+			
+			if (!$width || !$height) {
+				return;
+			}
 			
 			var bg: BackgroundSegmentUI = new BackgroundSegmentUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height);

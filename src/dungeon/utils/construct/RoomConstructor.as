@@ -1,12 +1,12 @@
 package dungeon.utils.construct {
-	import dungeon.personage.Monster;
-	import dungeon.map.interaction.Ladder;
-	import dungeon.map.construct.Wall;
+	import dungeon.map.construct.Background;
 	import dungeon.map.construct.Floor;
+	import dungeon.map.construct.Wall;
 	import dungeon.map.interaction.FrontTorch;
-	import dungeon.map.interaction.WallTorch;
+	import dungeon.map.interaction.Ladder;
 	import dungeon.map.interaction.Torch;
-	import dungeon.map.Background;
+	import dungeon.map.interaction.WallTorch;
+	import dungeon.personage.Monster;
 	import dungeon.system.GameObjectSection;
 	
 	/**

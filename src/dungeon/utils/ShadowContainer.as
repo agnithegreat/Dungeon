@@ -1,7 +1,7 @@
 package dungeon.utils
 {
+	import dungeon.system.GameSystem;
 	import starling.display.Quad;
-	import dungeon.map.DefaultStarlingMap;
 	import starling.events.Event;
 	import starling.textures.RenderTexture;
 	import starling.display.Image;
@@ -27,13 +27,13 @@ package dungeon.utils
 		{
 			_container = $container;
 			
-			_texture = new RenderTexture(DefaultStarlingMap.mapWidth, DefaultStarlingMap.mapHeight);
+			_texture = new RenderTexture(GameSystem.map.mapWidth, GameSystem.map.mapHeight);
 						
 			_shadow = new Image(_texture);
-			_shadow.alpha = 0.90;
+			_shadow.alpha = 0.98;
 			_container.addChild(_shadow);
 			
-			_quad = new Quad(DefaultStarlingMap.mapWidth, DefaultStarlingMap.mapHeight, 0x000000);
+			_quad = new Quad(GameSystem.map.mapWidth, GameSystem.map.mapHeight, 0x000000);
 			
 			_kickersContainer = new Sprite();
 			_kickersContainer.blendMode = BlendMode.ERASE;

@@ -39,6 +39,7 @@ package dungeon.system
 		public static function init($view: Sprite):void {
 			_eventDispatcher = new EventDispatcher();
 			
+			_map = new DefaultMap();
 			initModel();
 			initView($view);
 			
@@ -58,16 +59,16 @@ package dungeon.system
 			_world = GameObjectSection.createWorld();
 			for (var i : int = 0; i < 2; i++) {
 				var location: GameObjectSection = GameObjectSection.createLocation();
-				location.init(new Rectangle(0, 0, Dungeon.gameWidth, Dungeon.gameHeight));
+				location.init(new Rectangle(0, 0, _map.mapWidth, _map.mapHeight));
 				_world.addSection(location);
 				for (var j : int = 0; j < 4; j++) {
 					var floor: GameObjectSection = GameObjectSection.createLevel();
-					floor.init(new Rectangle(0, j*Dungeon.floorHeight, Dungeon.gameWidth, Dungeon.floorHeight));
+					floor.init(new Rectangle(0, j*_map.floorHeight, _map.mapWidth, _map.floorHeight));
 					location.addSection(floor);
 					for (var k : int = 0; k < 3; k++) {
 						if (Math.random()>0.3) {
 							var room: GameObjectSection = GameObjectSection.createRoom();
-							room.init(new Rectangle(k*Dungeon.gameWidth/3, j*Dungeon.floorHeight, Dungeon.gameWidth/3, Dungeon.floorHeight));
+							room.init(new Rectangle(k*_map.mapWidth/3, j*_map.floorHeight,_map.mapWidth/3, _map.floorHeight));
 							RoomConstructor.constructRoom(room);
 							floor.addSection(room);
 						}
@@ -78,25 +79,27 @@ package dungeon.system
 		
 		
 		// -- view --
-		private static var _view: Sprite;
+		private static var _screen: GameScreen;
 		private static var _map: DefaultMap;
 		public static function get map():DefaultMap {
 			return _map;
 		}
 		
 		private static function initView($view: Sprite):void {
-			_view = $view;
+			_screen = new GameScreen();
+			$view.addChild(_screen);
 			
-			_shadow = ShadowContainer.applyShadow(_view);
+			_shadow = ShadowContainer.applyShadow(_screen);
 			
-			_map = new DefaultMap();
-			_view.addChildAt(_map, 0);
+			_screen.addChildAt(_map, 0);
 			
 			var player: Player = new Player();
-			player.x = Dungeon.gameWidth/2;
-			player.y = Dungeon.gameHeight/6;
+			player.x = _map.mapWidth/2;
+			player.y = _map.mapHeight/6;
 			
 			_map.init(_world.getSection(GameObjectSection.LOCATION+0), player);
+			
+			_screen.lockOnObject(player);
 		}
 		
 		private static var _shadow: ShadowContainer;

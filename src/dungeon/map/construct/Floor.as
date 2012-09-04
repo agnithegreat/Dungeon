@@ -8,9 +8,19 @@ package dungeon.map.construct
 	
 	public class Floor extends Platform
 	{
-		public function Floor($width: int)
+		public function Floor($width: int = 0)
 		{
-			super();
+			super($width, 0);
+		}
+		
+		override public function resize($width: int = 0, $height: int = 0):void {
+			while (_container.numChildren) {
+				_container.removeChildAt(0);
+			}
+			
+			if (!$width) {
+				return;
+			}
 			
 			var bg: FloorSegmentUI = new FloorSegmentUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height);

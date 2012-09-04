@@ -1,4 +1,5 @@
 package {
+	import dungeon.system.GameScreen;
 	import flash.geom.Rectangle;
 	import starling.core.Starling;
 	import flash.display.Sprite;
@@ -7,10 +8,6 @@ package {
 	import flash.events.Event;
 
 	public class Dungeon extends Sprite {
-		
-		public static var gameWidth: int = 768;
-		public static var gameHeight: int = 512;
-		public static var floorHeight: int = 128;
 		
 		private var _starling: Starling;
 		
@@ -23,7 +20,10 @@ package {
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.frameRate = 60;
 			
-			_starling = new Starling(Game, stage, new Rectangle(0,0,gameWidth,gameHeight), stage.stage3Ds[0]);
+			GameScreen.screenWidth = stage.stageWidth;
+			GameScreen.screenHeight = stage.stageHeight;
+			
+			_starling = new Starling(Game, stage, new Rectangle(0,0,GameScreen.screenWidth,GameScreen.screenHeight), stage.stage3Ds[0]);
 			_starling.showStats = true;
 			_starling.start();
 		}
