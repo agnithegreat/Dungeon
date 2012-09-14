@@ -1,21 +1,22 @@
 package editor {
-	import dungeon.map.interaction.WallTorch;
-	import dungeon.map.interaction.Torch;
-	import dungeon.map.interaction.Ladder;
-	import dungeon.map.interaction.FrontTorch;
-	import dungeon.map.construct.Wall;
-	import dungeon.map.construct.Floor;
-	import dungeon.map.construct.Background;
-	import editor.parts.PartTile;
 	import dungeon.events.GameObjectEvent;
-	import editor.parts.PartsPanel;
-	import starling.events.TouchPhase;
-	import starling.events.TouchEvent;
-	import editor.tools.ResizingUtil;
-	import starling.display.Quad;
 	import dungeon.map.GameObject;
+	import dungeon.map.construct.Room;
+	import dungeon.map.interaction.FrontTorch;
+	import dungeon.map.interaction.Ladder;
+	import dungeon.map.interaction.Torch;
+	import dungeon.map.interaction.WallTorch;
+	
+	import editor.parts.PartTile;
+	import editor.parts.PartsPanel;
+	import editor.tools.ResizingUtil;
+	
 	import flash.utils.Dictionary;
+	
+	import starling.display.Quad;
 	import starling.display.Sprite;
+	import starling.events.TouchEvent;
+	import starling.events.TouchPhase;
 
 	/**
 	 * @author agnithegreat
@@ -44,9 +45,7 @@ package editor {
 			_partsPanel.x = 1024;
 			addChild(_partsPanel);
 			
-			_partsPanel.addPart(new PartTile(Background));
-			_partsPanel.addPart(new PartTile(Floor));
-			_partsPanel.addPart(new PartTile(Wall));
+			_partsPanel.addPart(new PartTile(Room));
 			_partsPanel.addPart(new PartTile(FrontTorch));
 			_partsPanel.addPart(new PartTile(Ladder));
 			_partsPanel.addPart(new PartTile(Torch));

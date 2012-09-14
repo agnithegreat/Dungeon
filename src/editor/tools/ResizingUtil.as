@@ -18,8 +18,8 @@ package editor.tools {
 		
 		public static var border: int = 5;
 		
-		public static var tileWidth: int = 50;
-		public static var tileHeight: int = 50;
+		public static var tileWidth: int = 4;
+		public static var tileHeight: int = 4;
 		
 		private var _bounds: Rectangle;
 		
