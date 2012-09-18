@@ -8,6 +8,10 @@ package dungeon.map.construct
 	
 	public class Floor extends Platform
 	{
+		override public function get z():uint {
+			return 0xA0002;
+		}
+		
 		public function Floor($width: int = 100)
 		{
 			super($width, 0);

@@ -10,6 +10,10 @@ package dungeon.map.construct
 	{
 		private var _leftSided: Boolean;
 		
+		override public function get z():uint {
+			return 0xA0001;
+		}
+		
 		public function Wall($height: int = 100, $isLeftSided: Boolean = true)
 		{
 			_leftSided = $isLeftSided;

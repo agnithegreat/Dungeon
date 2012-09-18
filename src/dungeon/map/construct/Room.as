@@ -6,11 +6,36 @@ package dungeon.map.construct
 
 	public class Room extends GameObject implements IResizable
 	{
+		override public function set x($x: Number):void {
+			_bg.x = $x;
+			_wallLeft.x = $x;
+			_wallRight.x = $x + _size.width-_wallRight.width;
+			_ceil.x = $x;
+			_floor.x = $x;
+			
+			super.x = $x;
+		}
+		override public function set y($y: Number):void {
+			_bg.y = $y;
+			_wallLeft.y = $y;
+			_wallRight.y = $y;
+			_ceil.y = $y;
+			_floor.y = $y + _size.height-_floor.height;
+			
+			super.y = $y;
+		}
+		
+		override public function get z():uint {
+			return 0xA00000;
+		}
+		
 		private var _bg: Background;
-		private var _floor: Floor;
-		private var _ceil: Floor;
 		private var _wallLeft: Wall;
 		private var _wallRight: Wall;
+		private var _floor: Floor;
+		private var _ceil: Floor;
+		
+		private var _form: Background;
 		
 		public function get parts():Vector.<GameObject> {
 			var pts: Vector.<GameObject> = new Vector.<GameObject>();
@@ -39,6 +64,10 @@ package dungeon.map.construct
 			_floor = new Floor();
 			addChild(_floor);
 			
+			_form = new Background();
+			_form.alpha = 0;
+			addChild(_form);
+			
 			resize($width, $height);
 		}
 		
@@ -54,6 +83,9 @@ package dungeon.map.construct
 			
 			_floor.y = _size.height-_floor.height;
 			_wallRight.x = _size.width-_wallRight.width;
+			
+			_form.width = $width;
+			_form.height = $height;
 		}
 	}
 }

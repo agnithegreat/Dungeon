@@ -1,6 +1,6 @@
 package editor.tools {
-	import dungeon.map.construct.IResizable;
 	import dungeon.map.GameObject;
+	import dungeon.map.construct.IResizable;
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -31,6 +31,8 @@ package editor.tools {
 			return _target as IResizable;
 		}
 		
+		private var _resizeLayer: Sprite;
+		
 		private var _objectContainer: Sprite;
 		private var _bordersContainer: Sprite;
 		
@@ -45,7 +47,9 @@ package editor.tools {
 		
 		private var _moveStart: Point;
 		
-		public function ResizingUtil() {
+		public function ResizingUtil($resizeLayer: Sprite = null) {
+			_resizeLayer = $resizeLayer;
+			
 			_objectContainer = new Sprite();
 			addChild(_objectContainer);
 			
@@ -86,6 +90,8 @@ package editor.tools {
 		}
 		
 		public function edit($target: GameObject):void {
+			free();
+			
 			_parent = $target.parent;
 			_position = new Point($target.x, $target.y);
 			
@@ -95,7 +101,11 @@ package editor.tools {
 			_objectContainer.addChild(_target);
 			resize(_target.width, _target.height, false);
 			
-			_parent.addChild(this);
+			if (_resizeLayer) {
+				_resizeLayer.addChild(this);
+			} else {
+				_parent.addChild(this);
+			}
 		}
 		
 		public function move($x: int, $y: int):void {
@@ -106,8 +116,11 @@ package editor.tools {
 			_bounds.x = Math.round($x/tileWidth)*tileWidth;
 			_bounds.y = Math.round($y/tileHeight)*tileHeight;
 			
-			x = int(_position.x+_bounds.x);
-			y = int(_position.y+_bounds.y);
+			_target.x = int(_position.x+_bounds.x);
+			_target.y = int(_position.y+_bounds.y);
+			
+			_bordersContainer.x = _target.bounds.x;
+			_bordersContainer.y = _target.bounds.y;
 		}
 		
 		public function resize($width: int, $height: int, $update: Boolean = true):void {
@@ -144,8 +157,6 @@ package editor.tools {
 				if (_parent) {
 					_parent.addChild(_target);
 				}
-				_target.x = x;
-				_target.y = y;
 			}
 			_parent = null;
 			_position = null;
@@ -175,13 +186,13 @@ package editor.tools {
 		}
 
 		private function handleDrag(e : TouchEvent) : void {
-			var newMove: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
+			var mouse: Point = new Point(e.touches[0].globalX, e.touches[0].globalY);
 			switch (e.touches[0].phase) {
 				case TouchPhase.BEGAN:
-					_moveStart = newMove;
+					_moveStart = mouse;
 					break;
 				case TouchPhase.MOVED:
-					var delta: Point = newMove.subtract(_moveStart);
+					var delta: Point = mouse.subtract(_moveStart);
 					
 					delta.x = Math.round(delta.x/tileWidth)*tileWidth;
 					delta.y = Math.round(delta.y/tileHeight)*tileHeight;

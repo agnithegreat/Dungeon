@@ -1,12 +1,13 @@
 package dungeon.map
 {
-	import dungeon.system.GameSystem;
-	import starling.display.DisplayObject;
 	import dungeon.events.GameObjectEvent;
+	import dungeon.system.GameSystem;
 	
-	import starling.display.Sprite;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	
+	import starling.display.DisplayObject;
+	import starling.display.Sprite;
 	
 	public class GameObject extends Sprite
 	{
@@ -29,6 +30,9 @@ package dungeon.map
 		}
 		
 		protected var _container: Sprite;
+		public function get container():Sprite {
+			return _container;
+		}
 		
 		protected var _center: Point;
 		public function get center():Point {

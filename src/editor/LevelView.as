@@ -27,6 +27,8 @@ package editor {
 		
 		private var _bg: Quad;
 		
+		private var _partsLayer: Sprite;
+		private var _resizeLayer: Sprite;
 		private var _resizing: ResizingUtil;
 		
 		private var _partsPanel: PartsPanel;
@@ -37,7 +39,13 @@ package editor {
 			_bg = new Quad(1024, 768, 0);
 			addChild(_bg);
 			
-			_resizing = new ResizingUtil();
+			_partsLayer = new Sprite();
+			addChild(_partsLayer);
+			
+			_resizeLayer = new Sprite();
+			addChild(_resizeLayer);
+			
+			_resizing = new ResizingUtil(_resizeLayer);
 			_bg.addEventListener(TouchEvent.TOUCH, handleSelect);
 			
 			_partsPanel = new PartsPanel();
@@ -55,7 +63,11 @@ package editor {
 		public function addObject($id: String, $obj: GameObject):void {
 			_objects[$id] = $obj;
 			$obj.addEventListener(TouchEvent.TOUCH, handleSelect);
-			addChild($obj);
+			_partsLayer.addChild($obj);
+			
+			updateChildrenOrder();
+			
+			_resizing.edit($obj);
 		}
 
 		private function handleCreatePart(e : GameObjectEvent) : void {
@@ -63,6 +75,8 @@ package editor {
 		}
 
 		private function handleSelect(e : TouchEvent) : void {
+			updateChildrenOrder();
+			
 			if (e.touches[0].phase==TouchPhase.BEGAN) {
 				if (_resizing.target==e.currentTarget) {
 					return;
@@ -75,6 +89,37 @@ package editor {
 					e.stopImmediatePropagation();
 				}
 			}
+		}
+		
+		private function updateChildrenOrder():void {
+			var stor: Vector.<GameObject> = new Vector.<GameObject>();
+			for each (var obj:GameObject in _objects) 
+			{
+				if (obj != _resizing.target) {
+					stor.push(obj);
+					if (obj is Room) {
+						var parts: Vector.<GameObject> = (obj as Room).parts;
+						stor = stor.concat(parts);
+					}
+				}
+			}
+			stor = stor.sort(sort);
+			
+			for (var i: int = 0; i < stor.length; i++) 
+			{
+				_partsLayer.addChild(stor[i]);
+			}
+			
+		}
+		
+		private function sort($1: GameObject, $2: GameObject):int {
+			if ($1.z>$2.z) {
+				return 1;
+			}
+			if ($1.z<$2.z) {
+				return -1;
+			}
+			return 0;
 		}
 	}
 }

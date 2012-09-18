@@ -8,7 +8,7 @@ package editor.parts {
 	public class PartTile extends Sprite {
 		
 		public static var tileWidth: int = 100;
-		public static var tileHeight: int = 100;
+		public static var tileHeight: int = 150;
 		
 		private var ObjectClass: Class;
 		private var _object: GameObject;

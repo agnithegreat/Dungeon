@@ -30,7 +30,7 @@ package editor.parts {
 		}
 
 		private function handleCreatePart(e : TouchEvent) : void {
-			if (e.touches[0].phase == TouchPhase.ENDED) {
+			if (e.touches[0].phase == TouchPhase.BEGAN) {
 				dispatchEvent(new GameObjectEvent(GameObjectEvent.OBJECT_CREATE, (e.currentTarget as PartTile).getObject()));
 			}
 		}
