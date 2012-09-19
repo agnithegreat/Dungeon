@@ -94,8 +94,8 @@ package dungeon.system
 			_screen.addChildAt(_map, 0);
 			
 			var player: Player = new Player();
-			player.x = _map.mapWidth/2;
-			player.y = _map.mapHeight/6;
+			player.x = _map.mapWidth/10;
+			player.y = _map.mapHeight/8;
 			
 			_map.init(_world.getSection(GameObjectSection.LOCATION+0), player);
 			

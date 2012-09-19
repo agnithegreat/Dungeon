@@ -11,6 +11,7 @@ package editor {
 	import editor.parts.PartsPanel;
 	import editor.tools.ResizingUtil;
 	
+	import flash.net.SharedObject;
 	import flash.utils.Dictionary;
 	
 	import starling.display.Quad;
@@ -60,18 +61,21 @@ package editor {
 			_partsPanel.addPart(new PartTile(WallTorch));
 		}
 		
-		public function addObject($id: String, $obj: GameObject):void {
-			_objects[$id] = $obj;
+		public function addObject($obj: GameObject):void {
+			var id: String = (Math.random()*100000).toString(36);
+			_objects[id] = $obj;
 			$obj.addEventListener(TouchEvent.TOUCH, handleSelect);
 			_partsLayer.addChild($obj);
 			
 			updateChildrenOrder();
 			
 			_resizing.edit($obj);
+			
+			_resizing.move(_bg.width/2, _bg.height/2);
 		}
 
 		private function handleCreatePart(e : GameObjectEvent) : void {
-			addObject("", e.data as GameObject);
+			addObject(e.data as GameObject);
 		}
 
 		private function handleSelect(e : TouchEvent) : void {
@@ -95,15 +99,15 @@ package editor {
 			var stor: Vector.<GameObject> = new Vector.<GameObject>();
 			for each (var obj:GameObject in _objects) 
 			{
-				if (obj != _resizing.target) {
+				if (obj is Room) {
+					var parts: Vector.<GameObject> = (obj as Room).parts;
+					stor = stor.concat(parts);
+				} else {
 					stor.push(obj);
-					if (obj is Room) {
-						var parts: Vector.<GameObject> = (obj as Room).parts;
-						stor = stor.concat(parts);
-					}
 				}
 			}
 			stor = stor.sort(sort);
+			export(stor);
 			
 			for (var i: int = 0; i < stor.length; i++) 
 			{
@@ -120,6 +124,16 @@ package editor {
 				return -1;
 			}
 			return 0;
+		}
+		
+		public function export($parts: Vector.<GameObject>):void {
+			var so: SharedObject = SharedObject.getLocal("dungeons", "/");
+			var map: Array = [];
+			for (var i:int = 0; i < $parts.length; i++) 
+			{
+				map.push($parts[i].getData());
+			}
+			so.data.map = map;
 		}
 	}
 }

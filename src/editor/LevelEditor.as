@@ -16,7 +16,7 @@ package editor {
 			_levelView = new LevelView();
 			addChild(_levelView);
 			
-			_levelView.addObject("", new Room());
+			_levelView.addObject(new Room());
 		}
 	}
 }

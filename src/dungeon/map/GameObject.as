@@ -1,10 +1,12 @@
 package dungeon.map
 {
 	import dungeon.events.GameObjectEvent;
+	import dungeon.map.construct.IResizable;
 	import dungeon.system.GameSystem;
 	
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import flash.utils.getQualifiedClassName;
 	
 	import starling.display.DisplayObject;
 	import starling.display.Sprite;
@@ -53,6 +55,8 @@ package dungeon.map
 			addToGameSystem();
 			
 			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
+			
+			parseFromObject();
 		}
 		
 		protected function addToGameSystem():void {
@@ -76,6 +80,34 @@ package dungeon.map
 		
 		public function destroy():void {
 			removeFromGameSystem();
+		}
+		
+		
+		private var _data: Object;
+		public function getData():Object {
+			_data = {};
+			_data.className = getQualifiedClassName(this);
+			_data.x = x;
+			_data.y = y;
+			_data.w = width;
+			_data.h = height;
+			return _data;
+		}
+		
+		public function setData($data:Object):void {
+			_data = $data;
+		}
+		
+		public function parseFromObject():void {
+			if (!_data) {
+				return;
+			}
+			
+			x = _data.x;
+			y = _data.y;
+			if (this is IResizable) {
+				(this as IResizable).resize(_data.w, _data.h);
+			}
 		}
 	}
 }

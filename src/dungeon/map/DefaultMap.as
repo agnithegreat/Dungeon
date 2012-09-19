@@ -2,12 +2,16 @@ package dungeon.map
 {
 	import dungeon.personage.Player;
 	import dungeon.system.GameObjectSection;
+	
+	import flash.net.SharedObject;
+	import flash.utils.getDefinitionByName;
+	
 	import starling.display.Sprite;
 	
 	public class DefaultMap extends Sprite
 	{
-		public var mapWidth: int = 768;
-		public var mapHeight: int = 512;
+		public var mapWidth: int = 1024;
+		public var mapHeight: int = 768;
 		public var floorHeight: int = 128;
 		
 		private var _location: GameObjectSection;
@@ -17,7 +21,7 @@ package dungeon.map
 			_location = $location;
 			_player = $player;
 			
-			var objects: Vector.<GameObject> = getAll();
+			var objects: Vector.<GameObject> = importMap();
 			var len: int = objects.length;
 			for (var i : int = 0; i < len; i++) {
 				var object: GameObject = objects[i];
@@ -42,6 +46,23 @@ package dungeon.map
 				return -1;
 			}
 			return 0;
+		}
+		
+		public function importMap(): Vector.<GameObject> {
+			var so: SharedObject = SharedObject.getLocal("dungeons", "/");
+			var map: Vector.<GameObject> = new Vector.<GameObject>();
+			for (var i:int = 0; i < so.data.map.length; i++) 
+			{
+				var object: Object = so.data.map[i];
+				trace(JSON.stringify(object));
+				var GameObjectClass: Class = getDefinitionByName(object.className) as Class;
+				var obj: GameObject = new GameObjectClass();
+				obj.setData(object);
+				map.push(obj);
+			}
+			map.push(_player);
+			map = map.sort(sort);
+			return map;
 		}
 	}
 }

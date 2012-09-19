@@ -102,9 +102,8 @@ package dungeon.personage
 			if (_interactive && _climb) {
 				climbPhase();
 			}
-			if (!_onTheFloor) {
-				fallPhase();
-			}
+
+			fallPhase();
 			
 			if (_interactive) {
 				_interaction = null;
@@ -190,6 +189,8 @@ package dungeon.personage
 			_speedY = 0;
 			_climb = false;
 			_onTheFloor = false;
+			
+			fallPhase();
 		}
 		
 		protected function fixPosition($platform: Platform, $side: Point):void {
