@@ -99,11 +99,10 @@ package editor {
 			var stor: Vector.<GameObject> = new Vector.<GameObject>();
 			for each (var obj:GameObject in _objects) 
 			{
+				stor.push(obj);
 				if (obj is Room) {
 					var parts: Vector.<GameObject> = (obj as Room).parts;
 					stor = stor.concat(parts);
-				} else {
-					stor.push(obj);
 				}
 			}
 			stor = stor.sort(sort);
@@ -131,7 +130,9 @@ package editor {
 			var map: Array = [];
 			for (var i:int = 0; i < $parts.length; i++) 
 			{
-				map.push($parts[i].getData());
+				if (!($parts[i] as Room)) {
+					map.push($parts[i].getData());
+				}
 			}
 			so.data.map = map;
 		}
