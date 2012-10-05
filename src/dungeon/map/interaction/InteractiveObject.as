@@ -1,7 +1,7 @@
 package dungeon.map.interaction
 {
-	import dungeon.system.GameSystem;
 	import dungeon.map.GameObject;
+	import dungeon.system.GameSystem;
 
 	public class InteractiveObject extends GameObject
 	{

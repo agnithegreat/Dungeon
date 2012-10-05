@@ -1,7 +1,11 @@
 package dungeon.map
 {
+	import dungeon.map.construct.Background;
+	import dungeon.map.interaction.InteractiveObject;
 	import dungeon.personage.Player;
 	import dungeon.system.GameObjectSection;
+	import dungeon.system.GameSystem;
+	import dungeon.utils.ShadowContainer;
 	
 	import flash.net.SharedObject;
 	import flash.utils.getDefinitionByName;
@@ -25,8 +29,15 @@ package dungeon.map
 			var len: int = objects.length;
 			for (var i : int = 0; i < len; i++) {
 				var object: GameObject = objects[i];
+				if (!(object is InteractiveObject)) {
+					object.hide();
+				}
 				addChild(object);
 				object.init();
+				
+				if (object is Background) {
+					GameSystem.registerRoom(object as Background);
+				}
 			}
 		}
 		

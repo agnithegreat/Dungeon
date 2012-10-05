@@ -53,15 +53,19 @@ package dungeon.map.construct
 			addChild(_bg);
 			
 			_wallLeft = new Wall();
+			_wallLeft.parentId = _bg.id;
 			addChild(_wallLeft);
 			
 			_wallRight = new Wall(0, true);
+			_wallRight.parentId = _bg.id;
 			addChild(_wallRight);
 			
 			_ceil = new Floor();
+			_ceil.parentId = _bg.id;
 			addChild(_ceil);
 			
 			_floor = new Floor();
+			_floor.parentId = _bg.id;
 			addChild(_floor);
 			
 			_form = new Background();

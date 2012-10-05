@@ -1,8 +1,9 @@
 package dungeon.map.interaction
 {
-	import effects.Fire;
-	
 	import dungeon.system.GameSystem;
+	import dungeon.utils.RoundShadowKicker;
+	
+	import effects.Fire;
 	
 	public class Torch extends InteractiveObject
 	{
@@ -33,7 +34,7 @@ package dungeon.map.interaction
 			_container.addChildAt(_fire, 0);
 			_fire.activate();
 			
-			GameSystem.addShadowKicker(this, 100);
+			GameSystem.addShadowKicker(new RoundShadowKicker(this, 100, false));
 			_lighted = true;
 			dispatchMove();
 			
