@@ -37,7 +37,7 @@ package dungeon.battle
 			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
 		}
 		
-		public function init():void {
+		override public function init():void {
 			_container.addChild(_fireball);
 			_startX = x;
 			_timer.start();

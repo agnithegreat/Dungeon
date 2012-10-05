@@ -1,6 +1,6 @@
 package editor {
-	import dungeon.events.GameObjectEvent;
 	import dungeon.map.GameObject;
+	import dungeon.events.GameObjectEvent;
 	import dungeon.map.construct.Room;
 	import dungeon.map.interaction.FrontTorch;
 	import dungeon.map.interaction.Ladder;

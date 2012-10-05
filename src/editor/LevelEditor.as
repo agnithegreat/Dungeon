@@ -1,6 +1,4 @@
 package editor {
-	import dungeon.map.construct.Background;
-	
 	import dungeon.map.construct.Room;
 	
 	import starling.display.Sprite;

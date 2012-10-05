@@ -51,10 +51,12 @@ package dungeon.map
 		public function importMap(): Vector.<GameObject> {
 			var so: SharedObject = SharedObject.getLocal("dungeons", "/");
 			var map: Vector.<GameObject> = new Vector.<GameObject>();
+			if (!so.data.map) {
+				return map;
+			}
 			for (var i:int = 0; i < so.data.map.length; i++) 
 			{
 				var object: Object = so.data.map[i];
-				trace(JSON.stringify(object));
 				var GameObjectClass: Class = getDefinitionByName(object.className) as Class;
 				var obj: GameObject = new GameObjectClass();
 				obj.setData(object);

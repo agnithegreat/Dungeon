@@ -30,8 +30,7 @@ package dungeon.personage
 		protected var _onTheFloor: Boolean;
 		protected var _canClimb: Boolean;
 		protected var _climb: Boolean;
-		protected var _jumped: Boolean;
-		protected var _doubleJumped: Boolean;
+		protected var _jumpHeight: int;
 		protected var _side: Boolean = true;
 		
 		public function Personage($class: Class, $interactive: Boolean = false)
@@ -97,13 +96,17 @@ package dungeon.personage
 				walkPhase();
 			}
 			
-			y += _speedY;
+			moveByY();
 			
 			if (_interactive && _climb) {
 				climbPhase();
 			}
+			
+			if (!_onTheFloor) {
+				_speedY -= GameSystem.GRAVITY;
+			}
 
-			fallPhase();
+			checkFall();
 			
 			if (_interactive) {
 				_interaction = null;
@@ -118,13 +121,40 @@ package dungeon.personage
 						if (rect.y+rect.height >= bound.y+bound.height) {
 							canClimb = true;
 						} else {
-							fallPhase();
+							checkFall();
 						}
 					} else {
 						_interaction = interaction;
 					}
 				}
 				_canClimb = canClimb;
+			}
+			
+			checkHits();
+		}
+		
+		private function checkHits():void {
+			var hits: Array = GameSystem.checkPersonageHit(this);
+			for (var i: int = 0; i < hits.length; i++) {
+				var hit: Personage = hits[i];
+				if (hit.y < y) {
+					doDamage();
+				}
+			}
+		}
+		
+		private function moveByY():void {
+			var module: int = _speedY<0 ? -1 : 1;
+			var yMoved: Number = 0;
+			var yMove: Number = 0;
+			while (_speedY-yMoved) {
+				yMove = (_speedY-yMoved)*module>10 ? 10 : (_speedY-yMoved)*module;
+				y += yMove*module;
+				if (checkFall()) {
+					yMoved += yMove*module;
+				} else {
+					return;
+				}
 			}
 		}
 		
@@ -146,11 +176,9 @@ package dungeon.personage
 			}
 		}
 		
-		protected function fallPhase():void {
-			if (_onTheFloor) {
-				_speedY = 0;
-			} else {
-				_speedY -= GameSystem.GRAVITY;
+		protected function checkFall():Boolean {
+			if (_climb) {
+				return true;
 			}
 			
 			if (_speedY < 0) {
@@ -160,6 +188,7 @@ package dungeon.personage
 						fixPosition(topCollisions[0], new Point(0, -1));
 					}
 					_speedY = 0;
+					_jumpHeight = int.MAX_VALUE;
 				}
 			} else {
 				var bottomCollisions: Array = GameSystem.checkCollisions(this);
@@ -167,11 +196,13 @@ package dungeon.personage
 					fixPosition(bottomCollisions[0], new Point(0, 1));
 					_speedY = 0;
 					_onTheFloor = true;
-					_doubleJumped = false;
+					_jumpHeight = 0;
+					return false;
 				} else {
 					_onTheFloor = false;
 				}
 			}
+			return true;
 		}
 		
 		protected function climbPhase():void {
@@ -186,11 +217,8 @@ package dungeon.personage
 					}
 				}
 			}
-			_speedY = 0;
 			_climb = false;
-			_onTheFloor = false;
-			
-			fallPhase();
+			checkFall();
 		}
 		
 		protected function fixPosition($platform: Platform, $side: Point):void {
