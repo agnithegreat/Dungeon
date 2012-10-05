@@ -1,9 +1,13 @@
 package dungeon.map.construct
 {
-	import dungeon.map.GameObject;
 	import assets.BackgroundSegmentUI;
+	
+	import dungeon.map.GameObject;
+	import dungeon.system.GameSystem;
+	
 	import flash.display.BitmapData;
 	import flash.geom.Point;
+	
 	import starling.display.Image;
 	import starling.textures.Texture;
 	
@@ -17,6 +21,14 @@ package dungeon.map.construct
 		{
 			super();
 			resize($width, $height);
+		}
+		
+		override public function appear():void {
+			GameSystem.changeRoom(id);
+			if (_appeared) {
+				return;
+			}
+			super.appear();
 		}
 		
 		public function resize($width: int = 0, $height: int = 0):void {

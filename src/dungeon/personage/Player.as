@@ -1,14 +1,17 @@
 package dungeon.personage
 {
-	import dungeon.events.GameObjectEvent;
-	import starling.events.Event;
 	import assets.PersonageUI;
 	
+	import dungeon.events.GameObjectEvent;
+	import dungeon.map.construct.Background;
 	import dungeon.system.GameSystem;
+	import dungeon.utils.RoundShadowKicker;
 	
 	import flash.display.MovieClip;
-	import starling.events.KeyboardEvent;
 	import flash.ui.Keyboard;
+	
+	import starling.events.Event;
+	import starling.events.KeyboardEvent;
 	
 	public class Player extends Personage
 	{
@@ -33,7 +36,15 @@ package dungeon.personage
 			addEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
 			super.init();
 			
-			GameSystem.addShadowKicker(this, 80);
+			appear();
+		}
+		
+		override public function appear():void {
+			if (_appeared) {
+				return;
+			}
+			super.appear();
+			GameSystem.addShadowKicker(new RoundShadowKicker(this, 80, false));
 		}
 
 		private function handleAddedToStage(e : Event) : void {
@@ -117,6 +128,15 @@ package dungeon.personage
 				_speedY = 0;
 			}
 			move();
+		}
+		
+		override public function move():void {
+			super.move();
+			
+			var rooms: Array = GameSystem.checkRooms(this);
+			if (rooms.length>0) {
+				rooms[0].appear();
+			}
 		}
 		
 		private function interact():void {

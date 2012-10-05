@@ -1,23 +1,26 @@
 package dungeon.system
 {
-	import dungeon.personage.Player;
-	import flash.geom.Rectangle;
-	import dungeon.map.DefaultMap;
-	import dungeon.utils.construct.RoomConstructor;
 	import dungeon.events.GameObjectEvent;
+	import dungeon.map.DefaultMap;
+	import dungeon.map.GameObject;
+	import dungeon.map.construct.Background;
+	import dungeon.map.construct.Platform;
+	import dungeon.map.interaction.InteractiveObject;
+	import dungeon.personage.Personage;
+	import dungeon.personage.Player;
+	import dungeon.utils.ShadowContainer;
+	import dungeon.utils.ShadowKicker;
+	import dungeon.utils.construct.RoomConstructor;
+	
+	import flash.events.TimerEvent;
+	import flash.geom.Rectangle;
+	import flash.utils.Dictionary;
+	import flash.utils.Timer;
+	
+	import starling.display.DisplayObject;
+	import starling.display.Sprite;
 	import starling.events.Event;
 	import starling.events.EventDispatcher;
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	import dungeon.utils.ShadowKicker;
-	import dungeon.personage.Personage;
-	import dungeon.map.interaction.InteractiveObject;
-	import starling.display.DisplayObject;
-	import dungeon.map.construct.Platform;
-	import dungeon.map.GameObject;
-	import dungeon.utils.ShadowContainer;
-	
-	import starling.display.Sprite;
 
 	public class GameSystem
 	{
@@ -89,12 +92,12 @@ package dungeon.system
 			_screen = new GameScreen();
 			$view.addChild(_screen);
 			
-			_shadow = ShadowContainer.applyShadow(_screen);
+			_shadow = new ShadowContainer(_screen, new Rectangle(0, 0, _map.mapWidth, _map.mapHeight));
 			
 			_screen.addChildAt(_map, 0);
 			
 			var player: Player = new Player();
-			player.x = _map.mapWidth/10;
+			player.x = _map.mapWidth/20;
 			player.y = _map.mapHeight/8;
 			
 			_map.init(_world.getSection(GameObjectSection.LOCATION+0), player);
@@ -103,35 +106,62 @@ package dungeon.system
 		}
 		
 		private static var _shadow: ShadowContainer;
-		public static function addShadowKicker($object: GameObject, $radius: int):void {
-			_shadow.addShadowKicker(new ShadowKicker($object, $radius));
+		public static function addShadowKicker($kicker: ShadowKicker):void {
+			if (_shadow) {
+				_shadow.addShadowKicker($kicker);
+			}
 		}
 		// -- view --
 		
 		
-		
-		
-		
-		
-		private static var _platforms: Array = [];
-		public static function registerPlatform($platform: Platform):void
-		{
-			_platforms.push($platform);
+		private static var _currentRoom: Background;
+		private static var _rooms: Dictionary = new Dictionary();
+		public static function registerRoom($room: Background):void {
+			_rooms[$room.id] = $room;
+			if (_shadow) {
+				_shadow.addShadow($room.id, $room.getBounds(_screen));
+			}
 		}
-		public static function clearPlatform($platform: Platform):void
-		{
-			for (var i: int = 0; i < _platforms.length; i++) {
-				var platform: Platform = _platforms[i];
-				if (platform==$platform) {
-					_platforms.splice(i,1);
-					return;
+		public static function checkRooms($object: DisplayObject):Array {
+			var collisions: Array = [];
+			for each (var room: Background in _rooms) {
+				if (room.hitTestObject($object)) {
+					collisions.push(room);
+				}
+			}
+			return collisions;
+		}
+		public static function changeRoom($id: String):void {
+			if (_shadow) {
+				var room: Background = _rooms[$id];
+				if (!room.appeared) {
+					_shadow.openRoom($id);
+					
+					for each (var platform: Platform in _platforms) {
+						if (platform.parentId == room.id) {
+							platform.appear();
+						}
+					}
+				}
+				if (_currentRoom != room) {
+					_currentRoom = room;
+					_shadow.changeRoom($id);
 				}
 			}
 		}
+		
+		private static var _platforms: Dictionary = new Dictionary();
+		public static function registerPlatform($platform: Platform):void
+		{
+			_platforms[$platform.id] = $platform;
+		}
+		public static function clearPlatform($platform: Platform):void
+		{
+			delete _platforms[$platform.id];
+		}
 		public static function checkCollisions($object: DisplayObject):Array {
 			var collisions: Array = [];
-			for (var i: int = 0; i < _platforms.length; i++) {
-				var platform: Platform = _platforms[i];
+			for each (var platform: Platform in _platforms) {
 				if (platform.hitTestObject($object)) {
 					collisions.push(platform);
 				}
@@ -139,25 +169,18 @@ package dungeon.system
 			return collisions;
 		}
 		
-		private static var _interactive: Array = [];
+		private static var _interactive: Dictionary = new Dictionary();
 		public static function registerInteractive($interactive: InteractiveObject):void
 		{
-			_interactive.push($interactive);
+			_interactive[$interactive.id] = $interactive;
 		}
 		public static function clearInteractive($interactive: InteractiveObject):void
 		{
-			for (var i: int = 0; i < _interactive.length; i++) {
-				var interactive: InteractiveObject = _interactive[i];
-				if (interactive==$interactive) {
-					_interactive.splice(i,1);
-					return;
-				}
-			}
+			delete _interactive[$interactive.id];
 		}
 		public static function checkInteraction($object: DisplayObject):Array {
 			var interaction: Array = [];
-			for (var i: int = 0; i < _interactive.length; i++) {
-				var interactive: InteractiveObject = _interactive[i];
+			for each (var interactive: InteractiveObject in _interactive) {
 				if (interactive.hitTestObject($object)) {
 					interaction.push(interactive);
 				}
@@ -165,25 +188,18 @@ package dungeon.system
 			return interaction;
 		}
 		
-		private static var _personages: Array = [];
+		private static var _personages: Dictionary = new Dictionary();
 		public static function registerPersonage($personage: Personage):void
 		{
-			_personages.push($personage);
+			_personages[$personage.id] = $personage;
 		}
 		public static function clearPersonage($personage: Personage):void
 		{
-			for (var i: int = 0; i < _personages.length; i++) {
-				var personage: Personage = _personages[i];
-				if (personage==$personage) {
-					_personages.splice(i,1);
-					return;
-				}
-			}
+			delete _personages[$personage.id];
 		}
 		public static function checkPersonageHit($object: DisplayObject):Array {
 			var personages: Array = [];
-			for (var i: int = 0; i < _personages.length; i++) {
-				var personage: Personage = _personages[i];
+			for each (var personage: Personage in _personages) {
 				if (personage!=$object && personage.hitTestObject($object)) {
 					personages.push(personage);
 				}
