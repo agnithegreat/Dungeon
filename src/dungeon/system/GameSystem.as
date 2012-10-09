@@ -2,12 +2,10 @@ package dungeon.system
 {
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.DefaultMap;
-	import dungeon.map.GameObject;
 	import dungeon.map.construct.Background;
 	import dungeon.map.construct.Platform;
 	import dungeon.map.interaction.InteractiveObject;
 	import dungeon.personage.Personage;
-	import dungeon.personage.Player;
 	import dungeon.utils.ShadowContainer;
 	import dungeon.utils.ShadowKicker;
 	import dungeon.utils.construct.RoomConstructor;
@@ -29,7 +27,7 @@ package dungeon.system
 		
 		// -- EventDispatcher --
 		private static var _timer: Timer;
-		private static var _eventDispatcher: EventDispatcher;
+		private static var _eventDispatcher: EventDispatcher = new EventDispatcher();
 		public static function addEventListener($event: String, $callback: Function):void {
 			_eventDispatcher.addEventListener($event, $callback);
 		}
@@ -40,8 +38,6 @@ package dungeon.system
 		
 		
 		public static function init($view: Sprite):void {
-			_eventDispatcher = new EventDispatcher();
-			
 			_map = new DefaultMap();
 			initModel();
 			initView($view);
@@ -96,13 +92,9 @@ package dungeon.system
 			
 			_screen.addChildAt(_map, 0);
 			
-			var player: Player = new Player();
-			player.x = _map.mapWidth/20;
-			player.y = _map.mapHeight/8;
+			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
 			
-			_map.init(_world.getSection(GameObjectSection.LOCATION+0), player);
-			
-			_screen.lockOnObject(player);
+			_screen.lockOnObject(_map.player);
 		}
 		
 		private static var _shadow: ShadowContainer;

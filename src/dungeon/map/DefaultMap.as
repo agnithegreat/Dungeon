@@ -5,7 +5,6 @@ package dungeon.map
 	import dungeon.personage.Player;
 	import dungeon.system.GameObjectSection;
 	import dungeon.system.GameSystem;
-	import dungeon.utils.ShadowContainer;
 	
 	import flash.net.SharedObject;
 	import flash.utils.getDefinitionByName;
@@ -19,22 +18,28 @@ package dungeon.map
 		public var floorHeight: int = 128;
 		
 		private var _location: GameObjectSection;
-		private var _player: Player;
 		
-		public function init($location: GameObjectSection, $player: Player):void {
+		private var _player: Player;
+		public function get player():Player {
+			return _player;
+		}
+		
+		public function init($location: GameObjectSection):void {
 			_location = $location;
-			_player = $player;
 			
 			var objects: Vector.<GameObject> = importMap();
 			var len: int = objects.length;
 			for (var i : int = 0; i < len; i++) {
 				var object: GameObject = objects[i];
+				addChild(object);
 				if (!(object is InteractiveObject)) {
 					object.hide();
 				}
-				addChild(object);
 				object.init();
 				
+				if (object is Player) {
+					_player = object as Player;
+				}
 				if (object is Background) {
 					GameSystem.registerRoom(object as Background);
 				}
@@ -44,7 +49,6 @@ package dungeon.map
 		public function getAll():Vector.<GameObject> {
 			var stor: Vector.<GameObject> = new Vector.<GameObject>();
 			stor = stor.concat(_location.storage);
-			stor.push(_player);
 			stor = stor.sort(sort);
 			return stor;
 		}
@@ -73,7 +77,6 @@ package dungeon.map
 				obj.setData(object);
 				map.push(obj);
 			}
-			map.push(_player);
 			map = map.sort(sort);
 			return map;
 		}

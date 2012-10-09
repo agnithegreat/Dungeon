@@ -1,4 +1,6 @@
 package editor {
+	import dungeon.personage.Monster;
+	import dungeon.personage.Player;
 	import dungeon.map.GameObject;
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.construct.Room;
@@ -59,6 +61,8 @@ package editor {
 			_partsPanel.addPart(new PartTile(Ladder));
 			_partsPanel.addPart(new PartTile(Torch));
 			_partsPanel.addPart(new PartTile(WallTorch));
+			_partsPanel.addPart(new PartTile(Player));
+			_partsPanel.addPart(new PartTile(Monster));
 		}
 		
 		public function addObject($obj: GameObject):void {

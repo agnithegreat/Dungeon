@@ -70,6 +70,8 @@ package dungeon.personage
 			
 			_personage.pivotX = _personage.width/2;
 			_personage.pivotY = _personage.height+1;
+			
+			appear();
 		}
 		
 		public function doDamage():void {

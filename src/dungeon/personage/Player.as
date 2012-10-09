@@ -3,11 +3,9 @@ package dungeon.personage
 	import assets.PersonageUI;
 	
 	import dungeon.events.GameObjectEvent;
-	import dungeon.map.construct.Background;
 	import dungeon.system.GameSystem;
 	import dungeon.utils.RoundShadowKicker;
 	
-	import flash.display.MovieClip;
 	import flash.ui.Keyboard;
 	
 	import starling.events.Event;
@@ -17,26 +15,20 @@ package dungeon.personage
 	{
 		private static var speed: Number = 3;
 		private static var climbSpeed: Number = 5;
-		private static var jumpSpeed: Number = 6;
+		private static var jumpSpeed: Number = 5;
+		private static var maxJumpSpeed: Number = 40;
 		private static var lockOnJump: Boolean = false;
-		private static var doubleJump: Boolean = true;
 		
 		private var _controls: Object = {};
-		
-		private var _castPlace: MovieClip;
 		
 		public function Player()
 		{
 			super(PersonageUI, true);
-			
-//			_castPlace = _personage.pers.castPlace;
 		}
 		
 		override public function init():void {
 			addEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
 			super.init();
-			
-			appear();
 		}
 		
 		override public function appear():void {
@@ -68,8 +60,8 @@ package dungeon.personage
 			var vSpeedChanged: Boolean = false;
 			var hSpeedChanged: Boolean = false;
 			
-			for each (var i: int in _controls) {
-				switch (i) {
+			for (var i: String in _controls) {
+				switch (int(i)) {
 					case Keyboard.LEFT:
 						if (!lockOnJump || _onTheFloor) {
 							turn(true);
@@ -90,17 +82,11 @@ package dungeon.personage
 							_onTheFloor = true;
 							_speedY = -climbSpeed;
 							hSpeedChanged = true;
-						} else if (_onTheFloor || (doubleJump && !_doubleJumped)) {
-							// переделать на блокировку прыжка до Key.release {
-								_controls[i] = false;
-							// }
-									
-							if (_onTheFloor) { 
-								_onTheFloor = false;
-							} else {
-								_doubleJumped = true;
-							}
-							_speedY = -jumpSpeed;
+						} else if (_jumpHeight<maxJumpSpeed) {
+							_onTheFloor = false;
+							var jumpDelta: int = Math.min(jumpSpeed, maxJumpSpeed-_jumpHeight);
+							_speedY = -jumpDelta;
+							_jumpHeight += jumpDelta;
 						}
 						break;
 					case Keyboard.DOWN:
@@ -130,6 +116,14 @@ package dungeon.personage
 			move();
 		}
 		
+		override protected function checkFall():Boolean {
+			if (y>GameSystem.map.mapHeight) {
+				y = -50;
+			}
+			
+			return super.checkFall();
+		}
+		
 		override public function move():void {
 			super.move();
 			
@@ -152,6 +146,12 @@ package dungeon.personage
 		}
 		
 		private function handleKeyUp(e: KeyboardEvent):void {
+			var i: int = e.keyCode;
+			switch (i) {
+				case Keyboard.UP:
+					_jumpHeight = int.MAX_VALUE;
+					break;
+			}
 			delete _controls[e.keyCode];
 		}
 	}
