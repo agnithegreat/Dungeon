@@ -91,10 +91,10 @@ package dungeon.system
 			_screen = new GameScreen();
 			$view.addChild(_screen);
 			
-			_shadow = new LightLayer(_map.mapWidth, _map.mapHeight);
+//			_shadow = new LightLayer(_map.mapWidth, _map.mapHeight);
 			
 			_screen.addChildAt(_map, 0);
-			_screen.addChild(_shadow);
+//			_screen.addChild(_shadow);
 			
 			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
 			
@@ -114,10 +114,7 @@ package dungeon.system
 		public static function registerRoom($room: Background):void {
 			_rooms[$room.id] = $room;
 			if (_shadow) {
-				var quad: Quad = new Quad($room.width, $room.height);
-				quad.x = $room.x;
-				quad.y = $room.y;
-				_shadow.addShadowGeometry(new QuadShadowGeometry(quad));
+//				_shadow.addShadowGeometry(new QuadShadowGeometry($room.quad));
 			}
 		}
 		public static function checkRooms($object: DisplayObject):Array {

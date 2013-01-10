@@ -34,7 +34,7 @@ package dungeon.map.interaction
 			_container.addChildAt(_fire, 0);
 			_fire.activate();
 			
-			GameSystem.addShadowKicker(new PointLight(x, y, 100, 0xFF6699));
+			GameSystem.addShadowKicker(new PointLight(x, y, 300, 0xFFCC99));
 			_lighted = true;
 			dispatchMove();
 			

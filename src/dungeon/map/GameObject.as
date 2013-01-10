@@ -28,6 +28,9 @@ package dungeon.map
 			dispatchMove();
 		}
 		
+		protected var _width: Number;
+		protected var _height: Number;
+		
 		// z-index for sorting on stage
 		public function get z():uint {
 			return 0;

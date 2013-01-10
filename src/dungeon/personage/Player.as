@@ -39,7 +39,7 @@ package dungeon.personage
 			}
 			super.appear();
 			
-			_light = new PointLight(x, y, 100, 0xFF6699);
+			_light = new PointLight(x, y, 300, 0xFFCC99);
 			GameSystem.addShadowKicker(_light);
 		}
 
@@ -130,9 +130,6 @@ package dungeon.personage
 		
 		override public function move():void {
 			super.move();
-			
-			_light.x = x;
-			_light.y = y;
 			
 			var rooms: Array = GameSystem.checkRooms(this);
 			if (rooms.length>0) {
