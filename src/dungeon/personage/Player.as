@@ -1,10 +1,10 @@
 package dungeon.personage
 {
+	import starling.extensions.lighting.lights.PointLight;
 	import assets.PersonageUI;
 	
 	import dungeon.events.GameObjectEvent;
 	import dungeon.system.GameSystem;
-	import dungeon.utils.RoundShadowKicker;
 	
 	import flash.ui.Keyboard;
 	
@@ -21,6 +21,8 @@ package dungeon.personage
 		
 		private var _controls: Object = {};
 		
+		private var _light: PointLight;
+		
 		public function Player()
 		{
 			super(PersonageUI, true);
@@ -36,7 +38,9 @@ package dungeon.personage
 				return;
 			}
 			super.appear();
-			GameSystem.addShadowKicker(new RoundShadowKicker(this, 80, false));
+			
+			_light = new PointLight(x, y, 100, 0xFF6699);
+			GameSystem.addShadowKicker(_light);
 		}
 
 		private function handleAddedToStage(e : Event) : void {
@@ -126,6 +130,9 @@ package dungeon.personage
 		
 		override public function move():void {
 			super.move();
+			
+			_light.x = x;
+			_light.y = y;
 			
 			var rooms: Array = GameSystem.checkRooms(this);
 			if (rooms.length>0) {

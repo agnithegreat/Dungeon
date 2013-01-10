@@ -1,7 +1,7 @@
 package dungeon.map.interaction
 {
+	import starling.extensions.lighting.lights.PointLight;
 	import dungeon.system.GameSystem;
-	import dungeon.utils.RoundShadowKicker;
 	
 	import effects.Fire;
 	
@@ -34,7 +34,7 @@ package dungeon.map.interaction
 			_container.addChildAt(_fire, 0);
 			_fire.activate();
 			
-			GameSystem.addShadowKicker(new RoundShadowKicker(this, 100, false));
+			GameSystem.addShadowKicker(new PointLight(x, y, 100, 0xFF6699));
 			_lighted = true;
 			dispatchMove();
 			

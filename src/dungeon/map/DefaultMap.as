@@ -1,7 +1,6 @@
 package dungeon.map
 {
 	import dungeon.map.construct.Background;
-	import dungeon.map.interaction.InteractiveObject;
 	import dungeon.personage.Player;
 	import dungeon.system.GameObjectSection;
 	import dungeon.system.GameSystem;
@@ -32,9 +31,6 @@ package dungeon.map
 			for (var i : int = 0; i < len; i++) {
 				var object: GameObject = objects[i];
 				addChild(object);
-				if (!(object is InteractiveObject)) {
-					object.hide();
-				}
 				object.init();
 				
 				if (object is Player) {

@@ -1,13 +1,16 @@
 package dungeon.system
 {
+	import starling.extensions.lighting.geometry.QuadShadowGeometry;
+	import starling.display.Quad;
+	import starling.extensions.lighting.core.ShadowGeometry;
+	import starling.extensions.lighting.core.LightBase;
+	import starling.extensions.lighting.core.LightLayer;
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.DefaultMap;
 	import dungeon.map.construct.Background;
 	import dungeon.map.construct.Platform;
 	import dungeon.map.interaction.InteractiveObject;
 	import dungeon.personage.Personage;
-	import dungeon.utils.ShadowContainer;
-	import dungeon.utils.ShadowKicker;
 	import dungeon.utils.construct.RoomConstructor;
 	
 	import flash.events.TimerEvent;
@@ -88,30 +91,33 @@ package dungeon.system
 			_screen = new GameScreen();
 			$view.addChild(_screen);
 			
-			_shadow = new ShadowContainer(_screen, new Rectangle(0, 0, _map.mapWidth, _map.mapHeight));
+			_shadow = new LightLayer(_map.mapWidth, _map.mapHeight);
 			
 			_screen.addChildAt(_map, 0);
+			_screen.addChild(_shadow);
 			
 			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
 			
 			_screen.lockOnObject(_map.player);
 		}
 		
-		private static var _shadow: ShadowContainer;
-		public static function addShadowKicker($kicker: ShadowKicker):void {
+		private static var _shadow: LightLayer;
+		public static function addShadowKicker($kicker: LightBase):void {
 			if (_shadow) {
-				_shadow.addShadowKicker($kicker);
+				_shadow.addLight($kicker);
 			}
 		}
 		// -- view --
 		
 		
-		private static var _currentRoom: Background;
 		private static var _rooms: Dictionary = new Dictionary();
 		public static function registerRoom($room: Background):void {
 			_rooms[$room.id] = $room;
 			if (_shadow) {
-				_shadow.addShadow($room.id, $room.getBounds(_screen));
+				var quad: Quad = new Quad($room.width, $room.height);
+				quad.x = $room.x;
+				quad.y = $room.y;
+				_shadow.addShadowGeometry(new QuadShadowGeometry(quad));
 			}
 		}
 		public static function checkRooms($object: DisplayObject):Array {
@@ -122,24 +128,6 @@ package dungeon.system
 				}
 			}
 			return collisions;
-		}
-		public static function changeRoom($id: String):void {
-			if (_shadow) {
-				var room: Background = _rooms[$id];
-				if (!room.appeared) {
-					_shadow.openRoom($id);
-					
-					for each (var platform: Platform in _platforms) {
-						if (platform.parentId == room.id) {
-							platform.appear();
-						}
-					}
-				}
-				if (_currentRoom != room) {
-					_currentRoom = room;
-					_shadow.changeRoom($id);
-				}
-			}
 		}
 		
 		private static var _platforms: Dictionary = new Dictionary();
