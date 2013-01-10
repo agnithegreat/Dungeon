@@ -6,6 +6,7 @@ package {
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 
+	[SWF(frameRate='60')]
 	public class Dungeon extends Sprite {
 		
 		public static var gameWidth: int = 768;
@@ -19,11 +20,13 @@ package {
 		}
 
 		private function handleAddedToStage(e : Event) : void {
+			removeEventListener(Event.ADDED_TO_STAGE, handleAddedToStage);
+
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.frameRate = 60;
-			
-			_starling = new Starling(Game, stage, new Rectangle(0,0,gameWidth,gameHeight), stage.stage3Ds[0]);
+
+			Starling.handleLostContext = true;
+			_starling = new Starling(Game, stage, new Rectangle(0,0,gameWidth,gameHeight), null, "auto", "baseline");
 			_starling.showStats = true;
 			_starling.start();
 		}
