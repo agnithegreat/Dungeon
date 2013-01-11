@@ -1,6 +1,6 @@
 package dungeon.map.interaction
 {
-	import starling.extensions.lighting.lights.PointLight;
+	import dungeon.utils.FlickeringLight;
 	import dungeon.system.GameSystem;
 	
 	import effects.Fire;
@@ -10,6 +10,8 @@ package dungeon.map.interaction
 		protected var _fire: Fire;
 		
 		protected var _lighted: Boolean;
+		
+		private var _light: FlickeringLight;
 		
 		public function Torch($lighted: Boolean = false)
 		{
@@ -34,9 +36,9 @@ package dungeon.map.interaction
 			_container.addChildAt(_fire, 0);
 			_fire.activate();
 			
-			GameSystem.addShadowKicker(new PointLight(x, y, 100, 0xFF6699));
-			_lighted = true;
-			dispatchMove();
+			_light = new FlickeringLight(x, y-height, 100, 0xFFFF99);
+			GameSystem.addLight(_light.light);
+			_light.start();
 			
 			GameSystem.clearInteractive(this);
 		}

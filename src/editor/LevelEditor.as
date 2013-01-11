@@ -1,6 +1,4 @@
 package editor {
-	import dungeon.map.construct.Room;
-	
 	import starling.display.Sprite;
 	
 	/**
@@ -13,8 +11,6 @@ package editor {
 		public function LevelEditor() {
 			_levelView = new LevelView();
 			addChild(_levelView);
-			
-			_levelView.addObject(new Room());
 		}
 	}
 }

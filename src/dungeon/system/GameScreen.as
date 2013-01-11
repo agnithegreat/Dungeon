@@ -11,8 +11,8 @@ package dungeon.system {
 	 */
 	public class GameScreen extends Sprite {
 		
-		public static var screenWidth: int = 640;
-		public static var screenHeight: int = 480;
+		public static var screenWidth: int = 768;
+		public static var screenHeight: int = 512;
 		
 		private var _lockedObject: GameObject;
 		

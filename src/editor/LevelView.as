@@ -1,9 +1,11 @@
 package editor {
+	import dungeon.map.construct.Floor;
+	import dungeon.map.construct.Wall;
+	import dungeon.map.construct.Background;
 	import dungeon.personage.Monster;
 	import dungeon.personage.Player;
 	import dungeon.map.GameObject;
 	import dungeon.events.GameObjectEvent;
-	import dungeon.map.construct.Room;
 	import dungeon.map.interaction.FrontTorch;
 	import dungeon.map.interaction.Ladder;
 	import dungeon.map.interaction.Torch;
@@ -39,7 +41,7 @@ package editor {
 		public function LevelView() {
 			_objects = new Dictionary();
 			
-			_bg = new Quad(1024, 768, 0);
+			_bg = new Quad(Dungeon.gameWidth, Dungeon.gameHeight, 0);
 			addChild(_bg);
 			
 			_partsLayer = new Sprite();
@@ -56,7 +58,9 @@ package editor {
 			_partsPanel.x = 1024;
 			addChild(_partsPanel);
 			
-			_partsPanel.addPart(new PartTile(Room));
+			_partsPanel.addPart(new PartTile(Background));
+			_partsPanel.addPart(new PartTile(Wall));
+			_partsPanel.addPart(new PartTile(Floor));
 			_partsPanel.addPart(new PartTile(FrontTorch));
 			_partsPanel.addPart(new PartTile(Ladder));
 			_partsPanel.addPart(new PartTile(Torch));
@@ -101,19 +105,13 @@ package editor {
 		
 		private function updateChildrenOrder():void {
 			var stor: Vector.<GameObject> = new Vector.<GameObject>();
-			for each (var obj:GameObject in _objects) 
-			{
+			for each (var obj:GameObject in _objects) {
 				stor.push(obj);
-				if (obj is Room) {
-					var parts: Vector.<GameObject> = (obj as Room).parts;
-					stor = stor.concat(parts);
-				}
 			}
 			stor = stor.sort(sort);
 			export(stor);
 			
-			for (var i: int = 0; i < stor.length; i++) 
-			{
+			for (var i: int = 0; i < stor.length; i++) {
 				_partsLayer.addChild(stor[i]);
 			}
 			
@@ -132,11 +130,8 @@ package editor {
 		public function export($parts: Vector.<GameObject>):void {
 			var so: SharedObject = SharedObject.getLocal("dungeons", "/");
 			var map: Array = [];
-			for (var i:int = 0; i < $parts.length; i++) 
-			{
-				if (!($parts[i] as Room)) {
-					map.push($parts[i].getData());
-				}
+			for (var i:int = 0; i < $parts.length; i++) {
+				map.push($parts[i].getData());
 			}
 			so.data.map = map;
 		}

@@ -1,10 +1,15 @@
 package dungeon.map.construct
 {
+	import starling.display.Quad;
+	import starling.extensions.lighting.geometry.QuadShadowGeometry;
+	import starling.extensions.lighting.core.ShadowGeometry;
 	import dungeon.map.GameObject;
 	import dungeon.system.GameSystem;
 
-	public class Platform extends GameObject implements IResizable
-	{
+	public class Platform extends GameObject implements IResizable {
+		
+		private var _shadow: ShadowGeometry;
+		
 		override public function get z():uint {
 			return 0xA0000;
 		}
@@ -20,6 +25,12 @@ package dungeon.map.construct
 		override protected function addToGameSystem():void {
 			super.addToGameSystem();
 			GameSystem.registerPlatform(this);
+			
+			var platform: Quad = new Quad(width, height);
+			platform.x = x;
+			platform.y = y;
+			_shadow = new QuadShadowGeometry(platform);
+			GameSystem.addShadowObject(_shadow);
 		}
 		
 		override protected function removeFromGameSystem():void {

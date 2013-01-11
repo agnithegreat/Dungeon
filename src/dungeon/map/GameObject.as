@@ -86,11 +86,11 @@ package dungeon.map
 		}
 		
 		public function init():void {
+			parseFromObject();
+			
 			addToGameSystem();
 			
 			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
-			
-			parseFromObject();
 		}
 		
 		protected function addToGameSystem():void {

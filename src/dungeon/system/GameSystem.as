@@ -1,13 +1,9 @@
-package dungeon.system
-{
-	import starling.extensions.lighting.geometry.QuadShadowGeometry;
-	import starling.display.Quad;
+package dungeon.system {
 	import starling.extensions.lighting.core.ShadowGeometry;
 	import starling.extensions.lighting.core.LightBase;
 	import starling.extensions.lighting.core.LightLayer;
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.DefaultMap;
-	import dungeon.map.construct.Background;
 	import dungeon.map.construct.Platform;
 	import dungeon.map.interaction.InteractiveObject;
 	import dungeon.personage.Personage;
@@ -23,8 +19,7 @@ package dungeon.system
 	import starling.events.Event;
 	import starling.events.EventDispatcher;
 
-	public class GameSystem
-	{
+	public class GameSystem {
 		public static var GRAVITY: Number = -0.5;
 		
 		
@@ -91,52 +86,34 @@ package dungeon.system
 			_screen = new GameScreen();
 			$view.addChild(_screen);
 			
-			_shadow = new LightLayer(_map.mapWidth, _map.mapHeight);
+			_shadow = new LightLayer(Dungeon.gameWidth, Dungeon.gameHeight);
 			
 			_screen.addChildAt(_map, 0);
 			_screen.addChild(_shadow);
 			
 			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
 			
-			_screen.lockOnObject(_map.player);
+//			_screen.lockOnObject(_map.player);
 		}
 		
 		private static var _shadow: LightLayer;
-		public static function addShadowKicker($kicker: LightBase):void {
+		public static function addLight($light: LightBase):void {
 			if (_shadow) {
-				_shadow.addLight($kicker);
+				_shadow.addLight($light);
+			}
+		}
+		public static function addShadowObject($object: ShadowGeometry):void {
+			if (_shadow) {
+				_shadow.addShadowGeometry($object);
 			}
 		}
 		// -- view --
 		
-		
-		private static var _rooms: Dictionary = new Dictionary();
-		public static function registerRoom($room: Background):void {
-			_rooms[$room.id] = $room;
-			if (_shadow) {
-				var quad: Quad = new Quad($room.width, $room.height);
-				quad.x = $room.x;
-				quad.y = $room.y;
-				_shadow.addShadowGeometry(new QuadShadowGeometry(quad));
-			}
-		}
-		public static function checkRooms($object: DisplayObject):Array {
-			var collisions: Array = [];
-			for each (var room: Background in _rooms) {
-				if (room.hitTestObject($object)) {
-					collisions.push(room);
-				}
-			}
-			return collisions;
-		}
-		
 		private static var _platforms: Dictionary = new Dictionary();
-		public static function registerPlatform($platform: Platform):void
-		{
+		public static function registerPlatform($platform: Platform):void {
 			_platforms[$platform.id] = $platform;
 		}
-		public static function clearPlatform($platform: Platform):void
-		{
+		public static function clearPlatform($platform: Platform):void {
 			delete _platforms[$platform.id];
 		}
 		public static function checkCollisions($object: DisplayObject):Array {
@@ -150,12 +127,10 @@ package dungeon.system
 		}
 		
 		private static var _interactive: Dictionary = new Dictionary();
-		public static function registerInteractive($interactive: InteractiveObject):void
-		{
+		public static function registerInteractive($interactive: InteractiveObject):void {
 			_interactive[$interactive.id] = $interactive;
 		}
-		public static function clearInteractive($interactive: InteractiveObject):void
-		{
+		public static function clearInteractive($interactive: InteractiveObject):void {
 			delete _interactive[$interactive.id];
 		}
 		public static function checkInteraction($object: DisplayObject):Array {
@@ -169,12 +144,10 @@ package dungeon.system
 		}
 		
 		private static var _personages: Dictionary = new Dictionary();
-		public static function registerPersonage($personage: Personage):void
-		{
+		public static function registerPersonage($personage: Personage):void {
 			_personages[$personage.id] = $personage;
 		}
-		public static function clearPersonage($personage: Personage):void
-		{
+		public static function clearPersonage($personage: Personage):void {
 			delete _personages[$personage.id];
 		}
 		public static function checkPersonageHit($object: DisplayObject):Array {

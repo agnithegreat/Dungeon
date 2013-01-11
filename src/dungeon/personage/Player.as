@@ -1,6 +1,5 @@
-package dungeon.personage
-{
-	import starling.extensions.lighting.lights.PointLight;
+package dungeon.personage {
+	import dungeon.utils.FlickeringLight;
 	import assets.PersonageUI;
 	
 	import dungeon.events.GameObjectEvent;
@@ -11,8 +10,7 @@ package dungeon.personage
 	import starling.events.Event;
 	import starling.events.KeyboardEvent;
 	
-	public class Player extends Personage
-	{
+	public class Player extends Personage {
 		private static var speed: Number = 3;
 		private static var climbSpeed: Number = 5;
 		private static var jumpSpeed: Number = 5;
@@ -21,10 +19,9 @@ package dungeon.personage
 		
 		private var _controls: Object = {};
 		
-		private var _light: PointLight;
+		private var _light: FlickeringLight;
 		
-		public function Player()
-		{
+		public function Player() {
 			super(PersonageUI, true);
 		}
 		
@@ -39,8 +36,9 @@ package dungeon.personage
 			}
 			super.appear();
 			
-			_light = new PointLight(x, y, 100, 0xFF6699);
-			GameSystem.addShadowKicker(_light);
+			_light = new FlickeringLight(x, y-height*2/3, 100, 0xFFFF99);
+			GameSystem.addLight(_light.light);
+			_light.start();
 		}
 
 		private function handleAddedToStage(e : Event) : void {
@@ -48,16 +46,6 @@ package dungeon.personage
 			
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 			stage.addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
-		}
-		
-		public function doFireball():void {
-/*			var fireball: Fireball = new Fireball(this);
-			var pos: Point = _castPlace.localToGlobal(new Point());
-			fireball.x = pos.x;
-			fireball.y = pos.y;
-			fireball.scaleX = _side ? 1 : -1;
-			parent.addChild(fireball);
-			fireball.init();*/
 		}
 		
 		override protected function handleTick(e: GameObjectEvent):void {
@@ -100,12 +88,10 @@ package dungeon.personage
 							hSpeedChanged = true;
 						}
 						break;
-					case Keyboard.SPACE:
+					case Keyboard.ENTER:
 						_controls[i] = false;
 						if (_interaction) {
 							interact();
-						} else {
-							doFireball();
 						}
 						break;
 				}
@@ -131,13 +117,8 @@ package dungeon.personage
 		override public function move():void {
 			super.move();
 			
-			_light.x = x;
-			_light.y = y;
-			
-			var rooms: Array = GameSystem.checkRooms(this);
-			if (rooms.length>0) {
-				rooms[0].appear();
-			}
+			_light.x = _side ? x-5 : x+5;
+			_light.y = y-height;
 		}
 		
 		private function interact():void {

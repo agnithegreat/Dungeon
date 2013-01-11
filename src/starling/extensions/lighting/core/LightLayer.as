@@ -15,7 +15,6 @@ package starling.extensions.lighting.core
 	import flash.display3D.Context3DStencilAction;
 	import flash.display3D.Context3DTextureFormat;
 	import flash.display3D.Context3DTriangleFace;
-	import flash.display3D.Context3DVertexBufferFormat;
 	import flash.display3D.IndexBuffer3D;
 	import flash.display3D.VertexBuffer3D;
 	import flash.display3D.textures.Texture;
@@ -27,7 +26,6 @@ package starling.extensions.lighting.core
 	import starling.extensions.lighting.shaders.LightMapShader;
 	import starling.extensions.lighting.shaders.PointLightShader;
 	import starling.extensions.lighting.shaders.PositionalLightShadowShader;
-	import starling.utils.Color;
 
 	/**
 	 * @author Szenia Zadvornykh

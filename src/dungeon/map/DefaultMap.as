@@ -1,9 +1,7 @@
 package dungeon.map
 {
-	import dungeon.map.construct.Background;
 	import dungeon.personage.Player;
 	import dungeon.system.GameObjectSection;
-	import dungeon.system.GameSystem;
 	
 	import flash.net.SharedObject;
 	import flash.utils.getDefinitionByName;
@@ -12,8 +10,8 @@ package dungeon.map
 	
 	public class DefaultMap extends Sprite
 	{
-		public var mapWidth: int = 1024;
-		public var mapHeight: int = 768;
+		public var mapWidth: int = 768;
+		public var mapHeight: int = 512;
 		public var floorHeight: int = 128;
 		
 		private var _location: GameObjectSection;
@@ -35,9 +33,6 @@ package dungeon.map
 				
 				if (object is Player) {
 					_player = object as Player;
-				}
-				if (object is Background) {
-					GameSystem.registerRoom(object as Background);
 				}
 			}
 		}
