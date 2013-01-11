@@ -29,13 +29,16 @@ package dungeon.map.construct
 				return;
 			}
 			
+			_width = $width;
+			_height = $height;
+			
 			var bg: WallSegmentUI = new WallSegmentUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height);
 			bmd.draw(bg);
 			var texture: Texture = Texture.fromBitmapData(bmd);
 			texture.repeat = true;
 			
-			var ry: Number = $height/bg.height;
+			var ry: Number = _height/bg.height;
 			var image: Image = new Image(texture);
 			image.setTexCoords(1, new Point(1, 0));
 			image.setTexCoords(2, new Point(0, ry));

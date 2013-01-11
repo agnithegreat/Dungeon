@@ -26,13 +26,16 @@ package dungeon.map.construct
 				return;
 			}
 			
+			_width = $width;
+			_height = $height;
+			
 			var bg: FloorSegmentUI = new FloorSegmentUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height);
 			bmd.draw(bg);
 			var texture: Texture = Texture.fromBitmapData(bmd);
 			texture.repeat = true;
 			
-			var rx: Number = $width/bg.width;
+			var rx: Number = _width/bg.width;
 			var image: Image = new Image(texture);
 			image.setTexCoords(1, new Point(rx, 0));
 			image.setTexCoords(2, new Point(0, 1));
