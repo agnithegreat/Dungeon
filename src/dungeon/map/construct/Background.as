@@ -1,5 +1,4 @@
-package dungeon.map.construct
-{
+package dungeon.map.construct {
 	import assets.BackgroundSegmentUI;
 	
 	import dungeon.map.GameObject;
@@ -10,16 +9,17 @@ package dungeon.map.construct
 	import starling.display.Image;
 	import starling.textures.Texture;
 	
-	public class Background extends GameObject implements IResizable
-	{
+	public class Background extends GameObject implements IResizable {
 		override public function get z():uint {
 			return 0xA0;
 		}
 		
-		public function Background($width: int = 100, $height: int = 100)
-		{
+		public function Background($width: int = 80, $height: int = 80) {
 			super();
 			resize($width, $height);
+		}
+		
+		override protected function initBody():void {
 		}
 		
 		public function resize($width: int = 0, $height: int = 0):void {
@@ -31,17 +31,14 @@ package dungeon.map.construct
 				return;
 			}
 			
-			_width = $width;
-			_height = $height;
-			
 			var bg: BackgroundSegmentUI = new BackgroundSegmentUI();
 			var bmd: BitmapData = new BitmapData(bg.width, bg.height);
 			bmd.draw(bg);
 			var texture: Texture = Texture.fromBitmapData(bmd);
 			texture.repeat = true;
 			
-			var rx: Number = _width/bg.width;
-			var ry: Number = _height/bg.height;
+			var rx: Number = $width/bg.width;
+			var ry: Number = $height/bg.height;
 			var image: Image = new Image(texture);
 			image.setTexCoords(1, new Point(rx, 0));
 			image.setTexCoords(2, new Point(0, ry));

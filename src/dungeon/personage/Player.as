@@ -11,10 +11,10 @@ package dungeon.personage {
 	import starling.events.KeyboardEvent;
 	
 	public class Player extends Personage {
-		private static var speed: Number = 3;
-		private static var climbSpeed: Number = 5;
-		private static var jumpSpeed: Number = 5;
-		private static var maxJumpSpeed: Number = 40;
+		
+		private static var speed: Number = 4;
+		private static var climbSpeed: Number = 3;
+		private static var jumpSpeed: Number = 12;
 		private static var lockOnJump: Boolean = false;
 		
 		private var _controls: Object = {};
@@ -36,7 +36,7 @@ package dungeon.personage {
 			}
 			super.appear();
 			
-			_light = new FlickeringLight(x, y-height*2/3, 100, 0xFFFF99);
+			_light = new FlickeringLight(x, y, 100, 0xFFFF99);
 			GameSystem.addLight(_light.light);
 			_light.start();
 		}
@@ -49,76 +49,62 @@ package dungeon.personage {
 		}
 		
 		override protected function handleTick(e: GameObjectEvent):void {
+			super.handleTick(e);
+			
+			if (locked) {
+				return;
+			}
+			
 			var vSpeedChanged: Boolean = false;
 			var hSpeedChanged: Boolean = false;
 			
 			for (var i: String in _controls) {
 				switch (int(i)) {
 					case Keyboard.LEFT:
-						if (!lockOnJump || _onTheFloor) {
+						if (!lockOnJump || onTheFloor || _climb) {
 							turn(true);
-							_speedX = -speed;
+							_body.velocity.x = -speed;
 							vSpeedChanged = true;
 						}
 						break;
 					case Keyboard.RIGHT:
-						if (!lockOnJump || _onTheFloor) {
+						if (!lockOnJump || onTheFloor || _climb) {
 							turn(false);
-							_speedX = speed;
+							_body.velocity.x = speed;
 							vSpeedChanged = true;
 						}
 						break;
 					case Keyboard.UP:
 						if (_canClimb) {
 							_climb = true;
-							_onTheFloor = true;
-							_speedY = -climbSpeed;
+							_body.velocity.y = -climbSpeed;
 							hSpeedChanged = true;
-						} else if (_jumpHeight<maxJumpSpeed) {
-							_onTheFloor = false;
-							var jumpDelta: int = Math.min(jumpSpeed, maxJumpSpeed-_jumpHeight);
-							_speedY = -jumpDelta;
-							_jumpHeight += jumpDelta;
 						}
 						break;
 					case Keyboard.DOWN:
 						if (_canClimb) {
 							_climb = true;
-							_speedY = climbSpeed;
+							_body.velocity.y = climbSpeed;
 							hSpeedChanged = true;
-						}
-						break;
-					case Keyboard.ENTER:
-						_controls[i] = false;
-						if (_interaction) {
-							interact();
 						}
 						break;
 				}
 			}
 			
-			if ((!lockOnJump || _onTheFloor) && !vSpeedChanged) {
-				_speedX = 0;
+			if ((!lockOnJump || onTheFloor) && !vSpeedChanged) {
+				_body.velocity.x = 0;
 			}
 			if (_climb && !hSpeedChanged) {
-				_speedY = 0;
+				_body.velocity.y = 0;
 			}
 			move();
-		}
-		
-		override protected function checkFall():Boolean {
-			if (y>GameSystem.map.mapHeight) {
-				y = -50;
-			}
-			
-			return super.checkFall();
 		}
 		
 		override public function move():void {
 			super.move();
 			
 			_light.x = _side ? x-5 : x+5;
-			_light.y = y-height;
+			_light.y = y;
 		}
 		
 		private function interact():void {
@@ -128,8 +114,21 @@ package dungeon.personage {
 		}
 		
 		private function handleKeyDown(e: KeyboardEvent):void {
-			if (!_controls.hasOwnProperty(e.keyCode)) {
-				_controls[e.keyCode] = e.keyCode;
+			var i: int = e.keyCode;
+			if (!_controls.hasOwnProperty(i)) {
+				_controls[e.keyCode] = i;
+			}
+			switch (i) {
+				case Keyboard.UP:
+					if (_allowJump && !_canClimb && onTheFloor) {
+						_body.velocity.y = -jumpSpeed;
+					}
+					_allowJump = false;
+					break;
+				case Keyboard.ENTER:
+					_controls[i] = false;
+					interact();
+					break;
 			}
 		}
 		
@@ -137,7 +136,7 @@ package dungeon.personage {
 			var i: int = e.keyCode;
 			switch (i) {
 				case Keyboard.UP:
-					_jumpHeight = int.MAX_VALUE;
+					_allowJump = true;
 					break;
 			}
 			delete _controls[e.keyCode];

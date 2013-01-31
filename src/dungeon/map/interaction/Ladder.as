@@ -9,7 +9,7 @@ package dungeon.map.interaction
 	
 	public class Ladder extends InteractiveObject implements IResizable
 	{
-		public function Ladder($height: int = 100)
+		public function Ladder($height: int = 112)
 		{
 			super();
 			resize(0, $height);

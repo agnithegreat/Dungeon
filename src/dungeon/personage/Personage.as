@@ -1,8 +1,11 @@
-package dungeon.personage
-{
+package dungeon.personage {
+	import nape.dynamics.InteractionFilter;
+	import nape.callbacks.CbType;
+	import nape.shape.Polygon;
+	import nape.phys.Material;
+	import nape.phys.BodyType;
+	
 	import dungeon.map.interaction.Ladder;
-	import dungeon.map.construct.Wall;
-	import dungeon.map.construct.Platform;
 	import flash.geom.Rectangle;
 	import dungeon.events.GameObjectEvent;
 	import dungeon.system.GameSystem;
@@ -11,13 +14,16 @@ package dungeon.personage
 	import flash.display.MovieClip;
 	import flash.display.BitmapData;
 	import dungeon.map.interaction.InteractiveObject;
-	import flash.geom.Point;
 	import dungeon.map.GameObject;
 	
-	public class Personage extends GameObject
-	{
+	public class Personage extends GameObject {
+		
+		public static const PERSONAGE: CbType = new CbType();
+		public static const PERSONAGE_FILTER: InteractionFilter = new InteractionFilter(0x0100, ~0x0100);		
+		public static const CLIMB_FILTER: InteractionFilter = new InteractionFilter(0x0100, 0);		
+		
 		override public function get z():uint {
-			return 0xA000;
+			return 0xA0000;
 		}
 		
 		protected var _personage: Image;
@@ -25,17 +31,22 @@ package dungeon.personage
 		protected var _interactive: Boolean;
 		protected var _interaction: InteractiveObject;
 		
-		protected var _speedX: Number;
-		protected var _speedY: Number;
-		protected var _onTheFloor: Boolean;
+		protected var _allowJump: Boolean = true;
 		protected var _canClimb: Boolean;
 		protected var _climb: Boolean;
-		protected var _jumpHeight: int;
 		protected var _side: Boolean = true;
+		protected var _lockTime: int;
 		
-		public function Personage($class: Class, $interactive: Boolean = false)
-		{
-			super();
+		public function get onTheFloor():Boolean {
+			return _body ? _body.normalImpulse().y<0 : false;
+		}
+		
+		public function get locked():Boolean {
+			return _lockTime>0;
+		}
+		
+		public function Personage($class: Class, $interactive: Boolean = false) {
+			super(BodyType.DYNAMIC);
 			
 			var pers: MovieClip = new $class();
 			var bmd: BitmapData = new BitmapData(pers.width, pers.height, true, 0x00000000);
@@ -46,9 +57,16 @@ package dungeon.personage
 			_container.addChild(_personage);
 			
 			_interactive = $interactive;
+		}
+		
+		override protected function initBody():void {
+			super.initBody();
+			_body.allowRotation = false;
+			_body.cbType = PERSONAGE;
 			
-			_speedX = 0;
-			_speedY = 0;
+			_shape = new Polygon(Polygon.box(_container.width, _container.height), new Material(0, 0, 100000, 100, 100000), PERSONAGE_FILTER);
+			_shape.body = _body;
+			_body.align();
 		}
 		
 		override protected function addToGameSystem():void {
@@ -62,14 +80,19 @@ package dungeon.personage
 		}
 		
 		override protected function handleTick(e: GameObjectEvent):void {
-			move();
+			x = _body.position.x;
+			y = _body.position.y;
+			
+			if (_lockTime>0) {
+				_lockTime -= e.data as int;
+			}
 		}
 		
 		override public function init():void {
 			super.init();
 			
 			_personage.pivotX = _personage.width/2;
-			_personage.pivotY = _personage.height+1;
+			_personage.pivotY = _personage.height/2;
 			
 			appear();
 		}
@@ -94,21 +117,16 @@ package dungeon.personage
 		}
 		
 		public function move():void {
-			if (_speedX) {
-				walkPhase();
-			}
-			
-			moveByY();
+			walkPhase();
 			
 			if (_interactive && _climb) {
+				_shape.filter = CLIMB_FILTER;
 				climbPhase();
+				_body.velocity.y -= _body.space.gravity.y*GameSystem.delay;
 			}
-			
-			if (!_onTheFloor) {
-				_speedY -= GameSystem.GRAVITY;
+			if (!_climb) {
+				_shape.filter = PERSONAGE_FILTER;
 			}
-
-			checkFall();
 			
 			if (_interactive) {
 				_interaction = null;
@@ -118,12 +136,11 @@ package dungeon.personage
 				for (var i: int = 0; i < interactives.length; i++) {
 					var interaction: InteractiveObject = interactives[i];
 					if (interaction is Ladder) {
-						var rect: Rectangle = interaction.bounds;
-						var bound: Rectangle = _personage.bounds;
-						if (rect.y+rect.height >= bound.y+bound.height) {
+						var rect: Rectangle = interaction.getBounds(interaction);
+						var bound: Rectangle = _personage.getBounds(interaction);
+						var intersection: Rectangle = rect.intersection(bound);
+						if (intersection.width>bound.width*0.5) {
 							canClimb = true;
-						} else {
-							checkFall();
 						}
 					} else {
 						_interaction = interaction;
@@ -145,66 +162,12 @@ package dungeon.personage
 			}
 		}
 		
-		private function moveByY():void {
-			var module: int = _speedY<0 ? -1 : 1;
-			var yMoved: Number = 0;
-			var yMove: Number = 0;
-			while (_speedY-yMoved) {
-				yMove = (_speedY-yMoved)*module>10 ? 10 : (_speedY-yMoved)*module;
-				y += yMove*module;
-				if (checkFall()) {
-					yMoved += yMove*module;
-				} else {
-					return;
-				}
-			}
-		}
-		
 		protected function walkPhase():void {
-			x += _speedX;
-			var sideCollisions: Array = GameSystem.checkCollisions(this);
-			if (sideCollisions.length>0) {
-				if (sideCollisions[0] is Wall) {
-					fixPosition(sideCollisions[0], new Point(_speedX,0));
-					return;
-				}
-				_speedX = 0;
-			}
-			if (_speedX) {
+			if (_body.velocity.x) {
 				if (_climb) {
-					_onTheFloor = false;
 					_climb = false;
 				}
 			}
-		}
-		
-		protected function checkFall():Boolean {
-			if (_climb) {
-				return true;
-			}
-			
-			if (_speedY < 0) {
-				var topCollisions: Array = GameSystem.checkCollisions(this);
-				if (topCollisions.length>0) {
-					if (topCollisions[0] is Platform) {
-						fixPosition(topCollisions[0], new Point(0, -1));
-					}
-					_speedY = 0;
-					_jumpHeight = int.MAX_VALUE;
-				}
-			} else {
-				var bottomCollisions: Array = GameSystem.checkCollisions(this);
-				if (bottomCollisions.length>0) {
-					fixPosition(bottomCollisions[0], new Point(0, 1));
-					_speedY = 0;
-					_onTheFloor = true;
-					_jumpHeight = 0;
-					return false;
-				} else {
-					_onTheFloor = false;
-				}
-			}
-			return true;
 		}
 		
 		protected function climbPhase():void {
@@ -212,27 +175,15 @@ package dungeon.personage
 			if (verticalInteractions.length>0) {
 				var ladder: Ladder = verticalInteractions[0] as Ladder;
 				if (ladder) {
-					x = ladder.x;
 					var rect: Rectangle = ladder.bounds;
-					if (rect.y+rect.height >= bounds.y+bounds.height) {
-						return;
+					if (rect.y+rect.height < _shape.bounds.y+_shape.bounds.height && _body.velocity.y>0 ||
+						rect.y >= _shape.bounds.y+_shape.bounds.height/2) {
+							_body.velocity.y = 0;
+							_climb = false;
+							return;
 					}
+					_body.position.x = ladder.x;
 				}
-			}
-			_climb = false;
-			checkFall();
-		}
-		
-		protected function fixPosition($platform: Platform, $side: Point):void {
-			var rect : Rectangle = $platform.bounds;
-			var collision: Rectangle = rect.intersection(bounds);
-			if ($side.x && _speedX) {
-				x += _speedX<0 ? collision.width : -collision.width;
-				dispatchEvent(new GameObjectEvent(GameObjectEvent.OBJECT_STUCK_X));
-			}
-			if ($side.y && _speedY) {
-				y += _speedY<0 ? collision.height+1 : -collision.height;
-				dispatchEvent(new GameObjectEvent(GameObjectEvent.OBJECT_STUCK_Y));
 			}
 		}
 		

@@ -1,20 +1,18 @@
-package dungeon.map.interaction
-{
+package dungeon.map.interaction {
 	import dungeon.utils.FlickeringLight;
 	import dungeon.system.GameSystem;
 	
 	import effects.Fire;
 	
-	public class Torch extends InteractiveObject
-	{
+	public class Torch extends InteractiveObject {
+		
 		protected var _fire: Fire;
 		
 		protected var _lighted: Boolean;
 		
 		private var _light: FlickeringLight;
 		
-		public function Torch($lighted: Boolean = false)
-		{
+		public function Torch($lighted: Boolean = false) {
 			super();
 			
 			_lighted = $lighted;
@@ -31,12 +29,11 @@ package dungeon.map.interaction
 			}
 		}
 		
-		override public function interact():void
-		{
+		override public function interact():void {
 			_container.addChildAt(_fire, 0);
 			_fire.activate();
 			
-			_light = new FlickeringLight(x, y-height, 100, 0xFFFF99);
+			_light = new FlickeringLight(x+_fire.x, y+_fire.y, 250, 0xFFFF99);
 			GameSystem.addLight(_light.light);
 			_light.start();
 			

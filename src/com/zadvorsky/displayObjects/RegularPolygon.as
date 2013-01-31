@@ -1,29 +1,13 @@
-package com.zadvorsky.displayObjects
-{
+package com.zadvorsky.displayObjects {
 	import com.adobe.utils.AGALMiniAssembler;
 	import flash.display3D.Context3D;
-	import flash.display3D.Context3DBlendFactor;
-	import flash.display3D.Context3DClearMask;
-	import flash.display3D.Context3DCompareMode;
 	import flash.display3D.Context3DProgramType;
-	import flash.display3D.Context3DRenderMode;
-	import flash.display3D.Context3DStencilAction;
-	import flash.display3D.Context3DTextureFormat;
-	import flash.display3D.Context3DTriangleFace;
 	import flash.display3D.Context3DVertexBufferFormat;
 	import flash.display3D.IndexBuffer3D;
-	import flash.display3D.Program3D;
 	import flash.display3D.VertexBuffer3D;
-	import flash.geom.ColorTransform;
 	import flash.geom.Matrix;
-	import flash.geom.Matrix3D;
-	import flash.geom.Orientation3D;
-	import flash.geom.PerspectiveProjection;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.geom.Transform;
-	import flash.geom.Utils3D;
-	import flash.geom.Vector3D;
 	import starling.core.RenderSupport;
 	import starling.core.Starling;
 	import starling.display.DisplayObject;

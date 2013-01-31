@@ -12,13 +12,9 @@ package dungeon.system {
 		public static const WORLD: String = "WORLD_SECTION";
 		public static const LOCATION: String = "LOCATION_SECTION";
 		public static const FLOOR: String = "FLOOR_SECTION";
-		public static const ROOM: String = "ROOM_SECTION";
 		
-		private static var _world : GameObjectSection;
+		private static var _world : GameObjectSection = new GameObjectSection(WORLD);
 		public static function createWorld():GameObjectSection {
-			if (!_world) {
-				_world = new GameObjectSection(WORLD);
-			}
 			return _world;
 		}
 		
@@ -34,13 +30,6 @@ package dungeon.system {
 			var floor: GameObjectSection = new GameObjectSection(FLOOR+_floors.length);
 			_floors.push(floor);
 			return floor;
-		}
-		
-		private static var _rooms: Vector.<GameObjectSection> = new Vector.<GameObjectSection>();
-		public static function createRoom():GameObjectSection {
-			var room: GameObjectSection = new GameObjectSection(ROOM+_rooms.length);
-			_rooms.push(room);
-			return room;
 		}
 		
 		private static var _platforms: Array = [];

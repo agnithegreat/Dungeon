@@ -9,10 +9,6 @@ package {
 	[SWF(frameRate='60')]
 	public class Dungeon extends Sprite {
 		
-		public static var gameWidth: int = 768;
-		public static var gameHeight: int = 512;
-		public static var floorHeight: int = 128;
-		
 		private var _starling: Starling;
 		
 		public function Dungeon() {
@@ -26,7 +22,7 @@ package {
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 
 			Starling.handleLostContext = true;
-			_starling = new Starling(Game, stage, new Rectangle(0,0,gameWidth,gameHeight), null, "auto", "baseline");
+			_starling = new Starling(Game, stage, new Rectangle(0, 0, 640, 480), null, "auto", "baseline");
 			_starling.showStats = true;
 			_starling.start();
 		}

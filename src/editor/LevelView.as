@@ -41,7 +41,7 @@ package editor {
 		public function LevelView() {
 			_objects = new Dictionary();
 			
-			_bg = new Quad(Dungeon.gameWidth, Dungeon.gameHeight, 0);
+			_bg = new Quad(640, 400, 0);
 			addChild(_bg);
 			
 			_partsLayer = new Sprite();

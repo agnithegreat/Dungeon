@@ -1,5 +1,9 @@
-package dungeon.map
-{
+package dungeon.map {
+	import nape.shape.Shape;
+	import nape.geom.Vec2;
+	import nape.phys.BodyType;
+	import nape.phys.Body;
+	
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.construct.IResizable;
 	import dungeon.system.GameSystem;
@@ -11,8 +15,8 @@ package dungeon.map
 	import starling.display.DisplayObject;
 	import starling.display.Sprite;
 	
-	public class GameObject extends Sprite
-	{
+	public class GameObject extends Sprite {
+		
 		private static var instCount: int = 0;
 		
 		protected var _x: Number;
@@ -27,9 +31,6 @@ package dungeon.map
 			super.y = _y;
 			dispatchMove();
 		}
-		
-		protected var _width: Number;
-		protected var _height: Number;
 		
 		// z-index for sorting on stage
 		public function get z():uint {
@@ -48,6 +49,14 @@ package dungeon.map
 		public function set parentId(pid:String):void {
 			_parent = pid;
 		}
+		
+		protected var _bodyType: BodyType;
+		
+		protected var _body: Body;
+		public function get body() : Body {
+			return _body;
+		}
+		protected var _shape: Shape;
 		
 		protected var _container: Sprite;
 		public function get container():Sprite {
@@ -68,9 +77,10 @@ package dungeon.map
 			return _center.add(new Point(x,y));
 		}
 		
-		public function GameObject()
-		{
+		public function GameObject($type: BodyType = null) {
 			instCount++;
+			
+			_bodyType = $type ? $type : BodyType.STATIC;
 			
 			_container = new Sprite();
 			addChild(_container);
@@ -91,9 +101,20 @@ package dungeon.map
 		public function init():void {
 			parseFromObject();
 			
+			initBody();
+			if (_body) {
+				_body.space = GameSystem.world;
+			}
+			
 			addToGameSystem();
 			
 			GameSystem.addEventListener(GameObjectEvent.TICK, handleTick);
+		}
+		
+		protected function initBody():void {
+			var bounds: Rectangle = getBounds(parent);
+			
+			_body = new Body(_bodyType, new Vec2(bounds.x+bounds.width/2, bounds.y+bounds.height/2));
 		}
 		
 		protected function addToGameSystem():void {
@@ -105,6 +126,7 @@ package dungeon.map
 		}
 
 		protected function handleTick(e : GameObjectEvent) : void {
+			
 		}
 		
 		public function dispatchMove():void {

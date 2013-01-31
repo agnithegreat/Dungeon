@@ -51,10 +51,12 @@ package dungeon.utils {
 		}
 
 		private function handleTimer($e: TimerEvent) : void {
-			var power: Number = Math.random()*0.1+0.9;
+			var power: Number = Math.random()*0.05+0.95;
 			
-			_light.x = _x+(Math.random()-0.5)*_flickering;
-			_light.y = _y+(Math.random()-0.5)*_flickering;
+			_light.x += 2*(Math.random()-0.5);
+			_light.x = Math.max(_x-_flickering, Math.min(_x, _x+_flickering));
+			_light.y += 2*(Math.random()-0.5);
+			_light.y = Math.max(_y-_flickering, Math.min(_y, _y+_flickering));
 			_light.brightness = power;
 			_light.radius = _radius*power;
 		}

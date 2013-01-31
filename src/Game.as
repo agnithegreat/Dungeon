@@ -10,6 +10,7 @@ package {
 	public class Game extends Sprite {
 		
 		public function Game() {
+			
 			addChild(new Quad(GameScreen.screenWidth, GameScreen.screenHeight, 0));
 			
 			var view: Sprite = new Sprite();

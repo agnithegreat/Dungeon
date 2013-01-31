@@ -1,16 +1,22 @@
 package dungeon.system {
+	import dungeon.map.MapContainer;
+	import dungeon.utils.FPSCounter;
+	import starling.core.Starling;
+	import nape.util.ShapeDebug;
+	import nape.geom.Vec2;
+	import nape.space.Space;
+	
 	import starling.extensions.lighting.core.ShadowGeometry;
 	import starling.extensions.lighting.core.LightBase;
 	import starling.extensions.lighting.core.LightLayer;
+	
 	import dungeon.events.GameObjectEvent;
 	import dungeon.map.DefaultMap;
 	import dungeon.map.construct.Platform;
 	import dungeon.map.interaction.InteractiveObject;
 	import dungeon.personage.Personage;
-	import dungeon.utils.construct.RoomConstructor;
 	
 	import flash.events.TimerEvent;
-	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	
@@ -20,8 +26,6 @@ package dungeon.system {
 	import starling.events.EventDispatcher;
 
 	public class GameSystem {
-		public static var GRAVITY: Number = -0.5;
-		
 		
 		// -- EventDispatcher --
 		private static var _timer: Timer;
@@ -35,50 +39,51 @@ package dungeon.system {
 		// -- EventDispatcher --
 		
 		
+		private static var _fps: FPSCounter;
+		public static function get delay():Number {
+			return 30/_fps.fps;
+		}
+		
+		
 		public static function init($view: Sprite):void {
-			_map = new DefaultMap();
-			initModel();
+			_fps = new FPSCounter($view);
+			
+			initPhysics();
+			
+			_map = new MapContainer();
 			initView($view);
 			
-			_timer = new Timer(30);
+			_timer = new Timer(1000/60);
 			_timer.addEventListener(TimerEvent.TIMER, handleTimer);
 			_timer.start();
 		}
 		
 		private static function handleTimer(e: TimerEvent):void {
-			dispatchEvent(new GameObjectEvent(GameObjectEvent.TICK));
+//			_debug.clear();
+			_physics.step(delay, 10000, 10000);
+//			_debug.draw(_physics);
+//			_debug.flush();
+			
+			dispatchEvent(new GameObjectEvent(GameObjectEvent.TICK, _timer.delay));
 		}
 		
 		
-		
-		private static var _world: GameObjectSection;
-		private static function initModel():void {
-			_world = GameObjectSection.createWorld();
-			for (var i : int = 0; i < 2; i++) {
-				var location: GameObjectSection = GameObjectSection.createLocation();
-				location.init(new Rectangle(0, 0, _map.mapWidth, _map.mapHeight));
-				_world.addSection(location);
-				for (var j : int = 0; j < 4; j++) {
-					var floor: GameObjectSection = GameObjectSection.createLevel();
-					floor.init(new Rectangle(0, j*_map.floorHeight, _map.mapWidth, _map.floorHeight));
-					location.addSection(floor);
-					for (var k : int = 0; k < 3; k++) {
-						if (Math.random()>0.3) {
-							var room: GameObjectSection = GameObjectSection.createRoom();
-							room.init(new Rectangle(k*_map.mapWidth/3, j*_map.floorHeight,_map.mapWidth/3, _map.floorHeight));
-							RoomConstructor.constructRoom(room);
-							floor.addSection(room);
-						}
-					}
-				}
-			}
+		private static var _physics: Space;
+		private static var _debug: ShapeDebug;
+		public static function get world():Space {
+			return _physics;
 		}
-		
+		public static function initPhysics():void {
+			_physics = new Space(new Vec2(0, 1));
+			
+			_debug = new ShapeDebug(GameScreen.screenWidth, GameScreen.screenHeight, 0x000000);
+			Starling.current.nativeOverlay.addChild(_debug.display);
+		}
 		
 		// -- view --
 		private static var _screen: GameScreen;
-		private static var _map: DefaultMap;
-		public static function get map():DefaultMap {
+		private static var _map: MapContainer;
+		public static function get map():MapContainer {
 			return _map;
 		}
 		
@@ -86,14 +91,12 @@ package dungeon.system {
 			_screen = new GameScreen();
 			$view.addChild(_screen);
 			
-			_shadow = new LightLayer(Dungeon.gameWidth, Dungeon.gameHeight);
+			_screen.addChild(_map);
 			
-			_screen.addChildAt(_map, 0);
+			_shadow = new LightLayer(GameScreen.screenWidth, GameScreen.screenHeight);
 			_screen.addChild(_shadow);
 			
-			_map.init(_world.getSection(GameObjectSection.LOCATION+0));
-			
-//			_screen.lockOnObject(_map.player);
+			_map.init(DefaultMap.importDefaultMap());
 		}
 		
 		private static var _shadow: LightLayer;
@@ -102,7 +105,7 @@ package dungeon.system {
 				_shadow.addLight($light);
 			}
 		}
-		public static function addShadowObject($object: ShadowGeometry):void {
+		public static function addShadowGeometry($object: ShadowGeometry):void {
 			if (_shadow) {
 				_shadow.addShadowGeometry($object);
 			}
@@ -115,15 +118,6 @@ package dungeon.system {
 		}
 		public static function clearPlatform($platform: Platform):void {
 			delete _platforms[$platform.id];
-		}
-		public static function checkCollisions($object: DisplayObject):Array {
-			var collisions: Array = [];
-			for each (var platform: Platform in _platforms) {
-				if (platform.hitTestObject($object)) {
-					collisions.push(platform);
-				}
-			}
-			return collisions;
 		}
 		
 		private static var _interactive: Dictionary = new Dictionary();

@@ -1,19 +1,17 @@
-package dungeon.personage
-{
+package dungeon.personage {
 	import dungeon.events.GameObjectEvent;
 	import assets.MonsterUI;
 	
 	import dungeon.system.GameSystem;
 
-	public class Monster extends Personage
-	{
+	public class Monster extends Personage {
+		
 		private static var speed: Number = 2;
 		private static var walkRange: int = -1;
 		
 		private var _startX: int;
 		
-		public function Monster()
-		{
+		public function Monster() {
 			super(MonsterUI);
 		}
 		
@@ -21,7 +19,6 @@ package dungeon.personage
 			super.init();
 			
 			_startX = x;
-			_speedX = speed;
 			
 			if (Math.random()>0.5) {
 				turn(!_side);
@@ -35,10 +32,13 @@ package dungeon.personage
 		}
 		
 		override protected function handleTick(e: GameObjectEvent):void {
-			if (walkRange>=0 && Math.abs(x+_speedX-_startX)>walkRange/2) {
+			super.handleTick(e);
+			
+			if (walkRange>=0 && Math.abs(x+_startX)>walkRange/2) {
 				turn(!_side);
 			}
 			
+			_body.velocity.x = speed*(-2*Number(_side)+1);
 			move();
 			
 			var hits: Array = GameSystem.checkPersonageHit(this);
@@ -48,11 +48,6 @@ package dungeon.personage
 			}
 			
 			animation();
-		}
-		
-		override public function turn($left: Boolean):void {
-			_speedX *= -1;
-			super.turn($left);
 		}
 		
 		private function animation():void {
